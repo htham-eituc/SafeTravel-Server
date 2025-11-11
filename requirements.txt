@@ -1,3 +1,4 @@
 google-generativeai
 pydantic-settings
 python-dotenv
+flask
