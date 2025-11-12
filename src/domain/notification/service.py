@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
-from .notification_repository import NotificationRepository
-from .notification_schema import NotificationCreate, NotificationUpdate
-from .notification import Notification
+from .repository import NotificationRepository
+from .schemas import NotificationCreate, NotificationUpdate
+from .models import Notification
 
 class NotificationService:
     def __init__(self, db: Session):

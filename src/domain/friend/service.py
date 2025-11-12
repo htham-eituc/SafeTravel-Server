@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from .friend_repository import FriendRepository
-from .friend_schema import FriendCreate
+from .repository import FriendRepository
+from .schemas import FriendCreate
 
 class FriendService:
     def __init__(self, friend_repository: FriendRepository):

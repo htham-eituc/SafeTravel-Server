@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
-from .sos_alert_repository import SOSAlertRepository
-from .sos_alert_schema import SOSAlertCreate, SOSAlertUpdate
-from .sos_alert import SOSAlert
+from .repository import SOSAlertRepository
+from .schemas import SOSAlertCreate, SOSAlertUpdate
+from .models import SOSAlert
 
 class SOSAlertService:
     def __init__(self, db: Session):

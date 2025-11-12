@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from .sos_alert import SOSAlert
-from .sos_alert_schema import SOSAlertCreate, SOSAlertUpdate
+from .models import SOSAlert
+from .schemas import SOSAlertCreate, SOSAlertUpdate
 
 class SOSAlertRepository:
     def __init__(self, db: Session):

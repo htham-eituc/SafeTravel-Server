@@ -2,18 +2,16 @@ from fastapi import FastAPI
 from dotenv import load_dotenv
 import os
 from src.domain.database.database import Base, engine
-# # from src.presentation.routers import auth, users, friends, circles, circle_members
-# from src.domain.user import user
-# from src.domain.circle import circle, circle_member
-# from src.domain.location import location
-# from src.domain.notification import notification
-# from src.domain.sos_alert import sos_alert
-# from src.domain.admin_log import admin_log
-# from src.domain.friend import friend
+from src.tests.mock_db_test import run_mock_db_test
+from src.domain.user import models as user_models
+from src.domain.circle import models as circle_models
+from src.domain.circle import member_models as circle_member_models
+from src.domain.location import models as location_models
+from src.domain.notification import models as notification_models
+from src.domain.admin_log import models as admin_log_models
+from src.domain.friend import models as friend_models
 
 load_dotenv()
-
-Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 

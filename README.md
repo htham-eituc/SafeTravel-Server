@@ -15,6 +15,7 @@ This project provides a backend API for a SafeTravel application, built with Fas
     - [4. Database Setup](#4-database-setup)
     - [5. Environment Variables](#5-environment-variables)
     - [6. Run the Application](#6-run-the-application)
+    - [7. Run Mock Database Test](#7-run-mock-database-test)
   - [API Testing with Postman](#api-testing-with-postman)
     - [Accessing API Documentation](#accessing-api-documentation)
     - [Authentication Endpoints](#authentication-endpoints)
@@ -50,6 +51,7 @@ This project provides a backend API for a SafeTravel application, built with Fas
 - Notification system (conceptual)
 - SOS alert system (conceptual)
 - Admin logging (conceptual)
+- Mock database test for initial data population
 
 ## Prerequisites
 
@@ -65,7 +67,7 @@ Before you begin, ensure you have the following installed:
 
 ```bash
 git clone <repository_url>
-cd safetravel-testbe
+cd SafeTravel-Server
 ```
 
 ### 2. Create a Virtual Environment
@@ -132,20 +134,26 @@ Open the `.env` file and configure your database connection string and secret ke
 ```
 DATABASE_URL="mysql+mysqlconnector://root:@127.0.0.1/safetravel"
 SECRET_KEY="your_super_secret_key"
+GEMINI_API_KEY="your_api_key_here"
 ```
 
 -   **`DATABASE_URL`**: Update this if your MySQL credentials or host are different.
 -   **`SECRET_KEY`**: **Change `your_super_secret_key` to a strong, random key for production environments.**
+-   **`GEMINI_API_KEY`**: Provide your API key for Gemini AI services.
 
 ### 6. Run the Application
 
 Start the FastAPI application using Uvicorn:
 
 ```bash
-python -m uvicorn main:app --reload
+python -m uvicorn run:app --reload
 ```
 
 The application will run on `http://127.0.0.1:8000`. The `--reload` flag will automatically restart the server when code changes are detected.
+
+### 7. Run Mock Database Test
+
+The mock database test (`src/tests/mock_db_test.py`) is configured to run automatically once when the server starts. It will create a `test.db` SQLite file and populate the `users` table with a mock user if one doesn't already exist. This is useful for development and testing purposes.
 
 ## API Testing with Postman
 

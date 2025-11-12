@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from .location import Location
-from .location_schema import LocationCreate, LocationUpdate
+from .models import Location
+from .schemas import LocationCreate, LocationUpdate
 
 class LocationRepository:
     def __init__(self, db: Session):

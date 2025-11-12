@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from .notification import Notification
+from .models import Notification
 from .notification_schema import NotificationCreate, NotificationUpdate
 
 class NotificationRepository:

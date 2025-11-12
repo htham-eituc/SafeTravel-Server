@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from .circle_member import CircleMember
-from .circle_member_schema import CircleMemberCreate, CircleMemberUpdate
+from .member_models import CircleMember
+from .member_schemas import CircleMemberCreate, CircleMemberUpdate
 
 class CircleMemberRepository:
     def __init__(self, db: Session):

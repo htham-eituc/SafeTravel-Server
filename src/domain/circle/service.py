@@ -1,9 +1,9 @@
 from sqlalchemy.orm import Session
-from .circle_repository import CircleRepository
-from .circle_member_repository import CircleMemberRepository
-from .circle_schema import CircleCreate, CircleUpdate
-from .circle_member_schema import CircleMemberCreate
-from .circle import Circle
+from .repository import CircleRepository
+from .member_repository import CircleMemberRepository
+from .schemas import CircleCreate, CircleUpdate
+from .member_schemas import CircleMemberCreate
+from .models import Circle
 
 class CircleService:
     def __init__(self, circle_repository: CircleRepository, circle_member_repository: CircleMemberRepository):

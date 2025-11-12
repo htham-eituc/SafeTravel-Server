@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from .admin_log import AdminLog
+from .models import AdminLog
 from .admin_log_schema import AdminLogCreate, AdminLogUpdate
 
 class AdminLogRepository:

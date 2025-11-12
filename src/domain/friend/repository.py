@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from .friend import Friend
+from .models import Friend
 from .friend_schema import FriendCreate
 
 class FriendRepository:

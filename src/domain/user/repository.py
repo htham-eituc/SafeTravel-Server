@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from .user import User
-from .user_schema import UserCreate, UserUpdate
+from .models import User
+from .schemas import UserCreate, UserUpdate
 from bcrypt import hashpw, gensalt
 
 class UserRepository:

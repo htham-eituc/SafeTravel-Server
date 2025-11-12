@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
-from .admin_log_repository import AdminLogRepository
-from .admin_log_schema import AdminLogCreate, AdminLogUpdate
-from .admin_log import AdminLog
+from .repository import AdminLogRepository
+from .schemas import AdminLogCreate, AdminLogUpdate
+from .models import AdminLog
 
 class AdminLogService:
     def __init__(self, db: Session):

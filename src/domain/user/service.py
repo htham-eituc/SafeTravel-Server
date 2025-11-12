@@ -1,12 +1,12 @@
 from sqlalchemy.orm import Session
-from .user_repository import UserRepository
-from .user_schema import UserCreate, UserUpdate
+from .repository import UserRepository
+from .schemas import UserCreate, UserUpdate
 from typing import Optional
-from .user import User
+from .models import User
 from bcrypt import checkpw
 from datetime import datetime, timedelta
 import jwt
-from ...config.settings import settings
+from src.config.settings import get_settings
 
 class UserService:
     def __init__(self, db: Session):
@@ -34,6 +34,7 @@ class UserService:
         return user
 
     def create_access_token(self, user_id: int) -> str:
+        settings = get_settings()
         to_encode = {"id": user_id, "exp": datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)}
         encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
         return encoded_jwt
