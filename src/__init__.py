@@ -1,7 +1,2 @@
-from flask import Flask
-
-app = Flask(__name__)
-
-def create_app():
-
-    return app
+# This file can be left empty or contain package-level initialization code.
+# For a FastAPI application, the main application instance is typically defined in a separate file (e.g., main.py or run.py).

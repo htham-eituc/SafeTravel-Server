@@ -2,20 +2,22 @@ from pydantic_settings import BaseSettings
 from functools import lru_cache
 
 class Settings(BaseSettings):
-    # Gemini AI
-    gemini_api_key: str
-    gemini_model: str = "gemini-2.5-flash"
+    # Database
+    DATABASE_URL: str
     
-    # # Database
-    # database_url: str
-    
-    # # Firebase
-    # firebase_credentials_path: str
+    # Security
+    SECRET_KEY: str
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     
     # API
-    environment: str = "development"
-    api_host: str = "0.0.0.0"
-    api_port: int = 8000
+    ENVIRONMENT: str = "development"
+    API_HOST: str = "0.0.0.0"
+    API_PORT: int = 8000
+    
+    # Gemini AI
+    GEMINI_API_KEY: str
+    GEMINI_MODEL: str = "gemini-2.5-flash"
     
     class Config:
         env_file = ".env"

@@ -1,4 +1,11 @@
-google-generativeai
-pydantic-settings
+fastapi
+uvicorn
+sqlalchemy
+pydantic
 python-dotenv
-flask
+mysql-connector-python
+bcrypt
+PyJWT
+pydantic-settings
+email-validator
+python-multipart
