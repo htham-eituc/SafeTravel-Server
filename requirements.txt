@@ -9,3 +9,5 @@ PyJWT
 pydantic-settings
 email-validator
 python-multipart
+google-generativeai
+

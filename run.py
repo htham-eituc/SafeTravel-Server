@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from dotenv import load_dotenv
 import os
 from src.domain.database.database import Base, engine
-from src.tests.mock_db_test import run_mock_db_test
+# from src.tests.mock_db_test import run_mock_db_test
 from src.domain.user import models as user_models
 from src.domain.circle import models as circle_models
 from src.domain.circle import member_models as circle_member_models
