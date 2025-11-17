@@ -335,7 +335,7 @@ The following endpoints are part of the project structure but require further im
 
 ## Project Structure
 
-The project follows a clean architecture pattern, separating concerns into `application`, `domain`, `infrastructure`, and `presentation` layers:
+The project follows a clean architecture pattern, separating concerns into `application`, `domain`, `infrastructure`, and `presentation` layers. This structure promotes maintainability, scalability, and testability by ensuring a clear separation of responsibilities.
 
 ```
 SafeTravel-Server/
@@ -348,11 +348,42 @@ SafeTravel-Server/
 ├── logs/                   # Application logs
 └── src/
     ├── application/        # Business logic and use cases
+    │   ├── admin_log/      # DTOs and use cases for admin logs
+    │   ├── circle/         # DTOs and use cases for circles and members
+    │   ├── friend/         # DTOs and use cases for friend connections
+    │   ├── location/       # DTOs and use cases for location tracking
+    │   ├── notification/   # DTOs and use cases for notifications
+    │   ├── security/       # Interfaces for security services (e.g., password hashing, token management)
+    │   ├── sos/            # Services for SOS functionalities
+    │   ├── sos_alert/      # DTOs and use cases for SOS alerts
+    │   └── user/           # DTOs and use cases for user management
     ├── config/             # Configuration settings
     ├── domain/             # Core entities, interfaces, and business rules
+    │   ├── admin_log/      # Admin log entities and repository interface
+    │   ├── circle/         # Circle entities and repository interfaces
+    │   ├── friend/         # Friend entities and repository interface
+    │   ├── location/       # Location entities and repository interface
+    │   ├── notification/   # Notification entities and repository interface
+    │   ├── sos_alert/      # SOS alert entities and repository interface
+    │   └── user/           # User entities and repository interface
     ├── infrastructure/     # Database implementations, external services, AI clients
+    │   ├── admin_log/      # Admin log models and repository implementation
+    │   ├── ai/             # Google Gemini AI client
+    │   ├── circle/         # Circle models and repository implementations
+    │   ├── database/       # Database connection and ORM setup
+    │   │   ├── firebase/   # Firebase database implementation (if used)
+    │   │   └── sql/        # SQL database implementation (e.g., SQLAlchemy)
+    │   ├── external_service/ # External service integrations
+    │   ├── friend/         # Friend models and repository implementation
+    │   ├── location/       # Location models and repository implementation
+    │   ├── notification/   # Notification models and repository implementation
+    │   ├── security/       # Security implementations (e.g., Bcrypt, JWT)
+    │   ├── sos_alert/      # SOS alert models and repository implementation
+    │   └── user/           # User models and repository implementation
     ├── presentation/       # FastAPI routes and API endpoints
+    │   └── auth_routes.py  # Authentication related API routes
     └── shared/             # Shared utilities (e.g., logger)
+        └── utils/          # Utility functions
 ```
 
 ## Contributing
