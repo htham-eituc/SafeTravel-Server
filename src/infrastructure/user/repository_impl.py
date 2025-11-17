@@ -1,57 +1,58 @@
 from sqlalchemy.orm import Session
 from src.infrastructure.user.models import User
-from src.domain.user.repository_interface import IUserRepository
+from src.domain.user.repository_interface import UserRepositoryInterface
 from src.domain.user.entities import User as UserEntity
-from src.application.user.dto import UserCreate, UserUpdate
-from typing import List, Optional
-from bcrypt import hashpw, gensalt
+from typing import Optional
 from datetime import datetime
 
-class UserRepository(IUserRepository):
-    def get_user(self, db: Session, user_id: int) -> Optional[UserEntity]:
-        db_user = db.query(User).filter(User.id == user_id).first()
+class UserRepositoryImpl(UserRepositoryInterface):
+    def __init__(self, db: Session):
+        self.db = db
+
+    def get_by_id(self, user_id: int) -> Optional[UserEntity]: # Changed to int
+        db_user = self.db.query(User).filter(User.id == user_id).first()
         if db_user:
-            return UserEntity.model_validate(db_user.__dict__)
+            return UserEntity.model_validate(db_user)
         return None
 
-    def get_user_by_email(self, db: Session, email: str) -> Optional[UserEntity]:
-        db_user = db.query(User).filter(User.email == email).first()
+    def get_by_email(self, email: str) -> Optional[UserEntity]:
+        db_user = self.db.query(User).filter(User.email == email).first()
         if db_user:
-            return UserEntity.model_validate(db_user.__dict__)
+            return UserEntity.model_validate(db_user)
         return None
 
-    def create_user(self, db: Session, user_data: UserEntity) -> UserEntity:
-        hashed_password = hashpw(user_data.hashed_password.encode('utf-8'), gensalt()).decode('utf-8')
+    def create(self, user_data: UserEntity) -> UserEntity:
         db_user = User(
-            username=user_data.username,
+            name=user_data.name,
             email=user_data.email,
-            hashed_password=hashed_password,
-            full_name=user_data.full_name,
-            disabled=user_data.disabled,
-            created_at=user_data.created_at
+            password_hash=user_data.password_hash, # Changed to password_hash
+            phone=user_data.phone,
+            avatar_url=user_data.avatar_url,
+            created_at=datetime.now() # Set created_at here or rely on DB default
         )
-        db.add(db_user)
-        db.commit()
-        db.refresh(db_user)
-        return UserEntity.model_validate(db_user.__dict__)
+        self.db.add(db_user)
+        self.db.commit()
+        self.db.refresh(db_user)
+        return UserEntity.model_validate(db_user)
 
-    def update_user(self, db: Session, user_id: int, user_data: UserEntity) -> Optional[UserEntity]:
-        db_user = db.query(User).filter(User.id == user_id).first()
+    def update(self, user_id: int, user_data: UserEntity) -> Optional[UserEntity]: # Changed to int
+        db_user = self.db.query(User).filter(User.id == user_id).first()
         if db_user:
-            update_data = user_data.model_dump(exclude_unset=True)
-            if "hashed_password" in update_data:
-                update_data["hashed_password"] = hashpw(update_data["hashed_password"].encode('utf-8'), gensalt()).decode('utf-8')
+            update_data = user_data.model_dump(exclude_unset=True, exclude={"id", "created_at"})
+            if "password_hash" in update_data: # Check for password_hash
+                # In a real app, you might re-hash the password here if it's being updated
+                pass 
             for key, value in update_data.items():
                 setattr(db_user, key, value)
-            db.commit()
-            db.refresh(db_user)
-            return UserEntity.model_validate(db_user.__dict__)
+            self.db.commit()
+            self.db.refresh(db_user)
+            return UserEntity.model_validate(db_user)
         return None
 
-    def delete_user(self, db: Session, user_id: int) -> bool:
-        db_user = db.query(User).filter(User.id == user_id).first()
+    def delete(self, user_id: int) -> bool: # Changed to int
+        db_user = self.db.query(User).filter(User.id == user_id).first()
         if db_user:
-            db.delete(db_user)
-            db.commit()
+            self.db.delete(db_user)
+            self.db.commit()
             return True
         return False

@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Float
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
-from ..database.database import Base
+from src.infrastructure.database.sql.database import Base
 
 class SOSAlert(Base):
     __tablename__ = "sos_alerts"

@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
-from ..database.database import Base
+from src.infrastructure.database.sql.database import Base
 
 class CircleMember(Base):
     __tablename__ = "circle_members"
