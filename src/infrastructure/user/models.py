@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey # Re-added Integer
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Boolean
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from src.infrastructure.database.sql.database import Base
@@ -6,11 +6,13 @@ from src.infrastructure.database.sql.database import Base
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, index=True) # Changed back to Integer
-    name = Column(String(255), index=True)
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String(255), index=True)
     email = Column(String(255), unique=True, index=True)
     phone = Column(String(20), nullable=True)
-    password_hash = Column(String(255))
+    hashed_password = Column(String(255))
+    full_name = Column(String(255), nullable=True)
+    disabled = Column(Boolean, default=False)
     avatar_url = Column(String(255), nullable=True)
     created_at = Column(DateTime, server_default=func.now())
 

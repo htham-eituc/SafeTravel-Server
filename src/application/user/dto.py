@@ -7,6 +7,7 @@ class UserBase(BaseModel):
     email: EmailStr
     phone: Optional[str] = None
     avatar_url: Optional[str] = None
+    full_name: Optional[str] = None # Thêm full_name
 
 from pydantic import Field # New import
 
