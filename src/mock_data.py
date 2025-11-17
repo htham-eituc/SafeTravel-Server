@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from src.domain.database.database import Base, engine, get_db
+from src.infrastructure.database.sql.database import Base, engine, get_db
 from src.domain.user.user import User
 from src.domain.user.user_schema import UserCreate
 from src.domain.user.user_repository import UserRepository

@@ -1,7 +1,7 @@
 from src.domain.user.repository_interface import UserRepositoryInterface
 from src.domain.user.entities import User
 from src.application.user.dto import UserLoginDTO, UserRegisterDTO, UserDTO, AuthTokenDTO
-from src.application.security_interfaces import IPasswordHasher, ITokenService # New import
+from src.application.security.security_interfaces import IPasswordHasher, ITokenService # New import
 from src.shared.utils.logger import get_logger
 
 logger = get_logger(__name__)

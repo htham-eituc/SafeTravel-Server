@@ -5,7 +5,7 @@ from passlib.context import CryptContext
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
-from src.application.security_interfaces import IPasswordHasher, ITokenService
+from src.application.security.security_interfaces import IPasswordHasher, ITokenService
 from src.config.settings import get_settings
 from src.application.user.dto import TokenData
 from src.domain.user.repository_interface import UserRepositoryInterface

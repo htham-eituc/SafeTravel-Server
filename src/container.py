@@ -2,7 +2,7 @@ from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordBearer
 
-from src.application.security_interfaces import IPasswordHasher, ITokenService
+from src.application.security.security_interfaces import IPasswordHasher, ITokenService
 from src.application.user.auth_use_cases import (
     LoginUserUseCase,
     RegisterUserUseCase,
@@ -10,7 +10,7 @@ from src.application.user.auth_use_cases import (
 )
 from src.domain.user.repository_interface import UserRepositoryInterface
 from src.infrastructure.database.sql.database import get_db
-from src.infrastructure.security_impl import BcryptPasswordHasher, JwtTokenService
+from src.infrastructure.security.security_impl import BcryptPasswordHasher, JwtTokenService
 from src.infrastructure.user.repository_impl import UserRepositoryImpl
 from src.application.user.dto import TokenData 
 
