@@ -17,6 +17,11 @@ This project provides the backend API for the SafeTravel application, built with
     - [5. Environment Variables](#5-environment-variables)
     - [6. Run the Application](#6-run-the-application)
   - [API Documentation and Testing](#api-documentation-and-testing)
+  - [API Endpoints](#api-endpoints)
+    - [Authentication Endpoints](#authentication-endpoints)
+    - [Friend Management Endpoints](#friend-management-endpoints)
+    - [Circle Endpoints](#circle-endpoints)
+    - [Circle Member Endpoints](#circle-member-endpoints)
   - [Project Structure](#project-structure)
   - [Contributing](#contributing)
   - [License](#license)
@@ -25,7 +30,7 @@ This project provides the backend API for the SafeTravel application, built with
 
 - **User Management:** Secure user registration, authentication (JWT), and profile management.
 - **Safety Circles:** Create and manage private circles for family and friends, with automatic owner assignment and status management.
-- **Friend Connections:** Establish and manage friend relationships between users.
+- **Friend Connections:** Establish and manage friend relationships between users, including sending, accepting, and rejecting friend requests.
 - **Location Tracking:** (Conceptual) Infrastructure for real-time location updates.
 - **Notifications:** (Conceptual) System for sending alerts and updates.
 - **SOS Alerts:** (Conceptual) Mechanism for users to send emergency alerts to their circles.
@@ -100,7 +105,7 @@ This project uses MySQL.
     ```
 
 2.  **Database Schema:**
-    The application will automatically create all necessary tables (`users`, `circles`, `circle_members`, `friends`, `locations`, `notifications`, `sos_alerts`, `admin_logs`) when it starts, based on the SQLAlchemy models.
+    The application will automatically create all necessary tables (`users`, `circles`, `circle_members`, `friend_requests`, `friendships`, `locations`, `notifications`, `sos_alerts`, `admin_logs`) when it starts, based on the SQLAlchemy models.
 
     **Note on Schema Updates:** If you modify database models, you may need to drop existing tables to allow the application to recreate them with the updated schema. Always back up your data before performing such operations in a production environment.
 
@@ -146,7 +151,7 @@ Or the ReDoc documentation at:
 
 These interfaces provide detailed information about all available endpoints, request/response schemas, and allow you to test the API directly from your browser.
 
-## API Testing with Postman
+## API Endpoints
 
 This section provides examples for testing the API endpoints using Postman.
 
@@ -161,10 +166,12 @@ This section provides examples for testing the API endpoints using Postman.
 -   **Body:** (raw, JSON)
     ```json
     {
-      "name": "Test User",
+      "username": "testuser",
       "email": "test@example.com",
       "phone": "1234567890",
-      "password": "testpassword"
+      "password": "testpassword",
+      "full_name": "Test User",
+      "avatar_url": "https://example.com/default_avatar.jpg"
     }
     ```
 -   **Expected Response:** `201 Created` with user details.
@@ -172,21 +179,73 @@ This section provides examples for testing the API endpoints using Postman.
 #### Login User
 
 -   **Method:** `POST`
--   **URL:** `http://127.0.0.1:8000/api/token`
+-   **URL:** `http://127.0.0.1:8000/api/login`
 -   **Headers:**
     -   `Content-Type`: `application/x-www-form-urlencoded`
 -   **Body:** (x-www-form-urlencoded)
-    -   `username`: `test@example.com`
+    -   `username`: `testuser`
     -   `password`: `testpassword`
 -   **Expected Response:** `200 OK` with `access_token` and `token_type`. **Copy the `access_token` for authenticated requests.**
 
-#### Get Current User (Authenticated)
+#### Logout User (Authenticated)
 
--   **Method:** `GET`
--   **URL:** `http://127.0.0.1:8000/api/users/me`
+-   **Method:** `POST`
+-   **URL:** `http://127.0.0.1:8000/api/logout`
 -   **Headers:**
     -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN` (Replace `YOUR_ACCESS_TOKEN` with your actual token)
--   **Expected Response:** `200 OK` with current user details.
+-   **Expected Response:** `200 OK` with a success message.
+
+### Friend Management Endpoints
+
+All friend endpoints require authentication.
+
+#### Send Friend Request
+
+-   **Method:** `POST`
+-   **URL:** `http://127.0.0.1:8000/api/friend-requests`
+-   **Headers:**
+    -   `Content-Type`: `application/json`
+    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN` (Token of the sender)
+-   **Body:** (raw, JSON)
+    ```json
+    {
+      "receiver_username": "friend_username"
+    }
+    ```
+    (Replace `friend_username` with the username of the user you want to send a request to.)
+-   **Expected Response:** `201 Created` with the new friend request details.
+
+#### Get Pending Friend Requests
+
+-   **Method:** `GET`
+-   **URL:** `http://127.0.0.1:8000/api/friend-requests/pending`
+-   **Headers:**
+    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN` (Token of the receiver)
+-   **Expected Response:** `200 OK` with a list of pending friend requests for the current user.
+
+#### Accept Friend Request
+
+-   **Method:** `POST`
+-   **URL:** `http://127.0.0.1:8000/api/friend-requests/{request_id}/accept` (Replace `{request_id}` with the ID of the pending request)
+-   **Headers:**
+    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN` (Token of the receiver)
+-   **Expected Response:** `200 OK` with the details of the newly created friendship.
+
+#### Reject Friend Request
+
+-   **Method:** `POST`
+-   **URL:** `http://127.0.0.1:8000/api/friend-requests/{request_id}/reject` (Replace `{request_id}` with the ID of the pending request)
+-   **Headers:**
+    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN` (Token of the receiver)
+-   **Expected Response:** `200 OK` with the details of the rejected friend request.
+
+#### Get User's Friends
+
+-   **Method:** `GET`
+-   **URL:** `http://127.0.0.1:8000/api/friends`
+-   **Headers:**
+    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
+-   **Expected Response:** `200 OK` with a list of `User` objects who are friends with the current user.
 
 ### Circle Endpoints
 
@@ -287,43 +346,6 @@ All circle member endpoints require authentication.
     -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
 -   **Expected Response:** `204 No Content`.
 
-### Friend Endpoints
-
-All friend endpoints require authentication.
-
-#### Create Friend
-
--   **Method:** `POST`
--   **URL:** `http://127.0.0.1:8000/api/friends`
--   **Headers:**
-    -   `Content-Type`: `application/json`
-    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
--   **Body:** (raw, JSON)
-    ```json
-    {
-      "user_id": 1,
-      "friend_id": 2
-    }
-    ```
-    (Replace `user_id` with the current authenticated user's ID, and `friend_id` with another existing user's ID.)
--   **Expected Response:** `201 Created` with new friend relationship details.
-
-#### Get Friends by User ID
-
--   **Method:** `GET`
--   **URL:** `http://127.0.0.1:8000/api/friends`
--   **Headers:**
-    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
--   **Expected Response:** `200 OK` with a list of friends for the current user.
-
-#### Delete Friend
-
--   **Method:** `DELETE`
--   **URL:** `http://127.0.0.1:8000/api/friends/{friend_id}`
--   **Headers:**
-    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
--   **Expected Response:** `204 No Content`.
-
 ### Other Endpoints (Conceptual)
 
 The following endpoints are part of the project structure but require further implementation and testing:
@@ -381,7 +403,8 @@ SafeTravel-Server/
     │   ├── sos_alert/      # SOS alert models and repository implementation
     │   └── user/           # User models and repository implementation
     ├── presentation/       # FastAPI routes and API endpoints
-    │   └── auth_routes.py  # Authentication related API routes
+    │   ├── auth_routes.py  # Authentication related API routes
+    │   └── friend_routes.py # Friend management API routes
     └── shared/             # Shared utilities (e.g., logger)
         └── utils/          # Utility functions
 ```

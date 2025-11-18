@@ -1,26 +1,26 @@
 from sqlalchemy.orm import Session
 from src.infrastructure.database.sql.database import Base, engine, get_db
-from src.domain.user.user import User
-from src.domain.user.user_schema import UserCreate
-from src.domain.user.user_repository import UserRepository
-from src.domain.circle.circle import Circle
-from src.domain.circle.circle_schema import CircleCreate
-from src.domain.circle.circle_repository import CircleRepository
-from src.domain.circle.circle_member import CircleMember
-from src.domain.circle.circle_member_schema import CircleMemberCreate
-from src.domain.circle.circle_member_repository import CircleMemberRepository
-from src.domain.friend.friend import Friend
-from src.domain.friend.friend_schema import FriendCreate
-from src.domain.friend.friend_repository import FriendRepository
-from src.domain.location.location import Location
-from src.domain.location.location_schema import LocationCreate
-from src.domain.location.location_repository import LocationRepository
-from src.domain.notification.notification import Notification
-from src.domain.notification.notification_schema import NotificationCreate
-from src.domain.notification.notification_repository import NotificationRepository
-from src.domain.admin_log.admin_log import AdminLog
-from src.domain.admin_log.admin_log_schema import AdminLogCreate
-from src.domain.admin_log.admin_log_repository import AdminLogRepository
+from src.infrastructure.user.models import User
+from src.application.user.dto import UserCreate
+from src.infrastructure.user.repository_impl import UserRepository
+from src.infrastructure.circle.models import Circle
+from src.application.circle.dto import CircleCreate
+from src.infrastructure.circle.repository_impl import CircleRepository
+from src.infrastructure.circle.member_models import CircleMember
+from src.application.circle.member_dto import CircleMemberCreate
+from src.infrastructure.circle.member_repository_impl import CircleMemberRepository
+from src.infrastructure.friend.models import Friend
+from src.application.friend.dto import FriendCreate
+from src.infrastructure.friend.repository_impl import FriendRepository
+from src.infrastructure.location.models import Location
+from src.application.location.dto import LocationCreate
+from src.infrastructure.location.repository_impl import LocationRepository
+from src.infrastructure.notification.models import Notification
+from src.application.notification.dto import NotificationCreate
+from src.infrastructure.notification.repository_impl import NotificationRepository
+from src.infrastructure.admin_log.models import AdminLog
+from src.application.admin_log.dto import AdminLogCreate
+from src.infrastructure.admin_log.repository_impl import AdminLogRepository
 from bcrypt import hashpw, gensalt
 from datetime import datetime, timedelta
 

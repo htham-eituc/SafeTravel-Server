@@ -8,37 +8,29 @@ from src.application.user.auth_use_cases import (
     RegisterUserUseCase,
     LogoutUserUseCase
 )
-from fastapi import Depends, HTTPException, status
-from sqlalchemy.orm import Session
-from fastapi.security import OAuth2PasswordBearer
-
-from src.application.security.security_interfaces import IPasswordHasher, ITokenService
-from src.application.user.auth_use_cases import (
-    LoginUserUseCase,
-    RegisterUserUseCase,
-    LogoutUserUseCase
-)
-from fastapi import Depends, HTTPException, status
-from sqlalchemy.orm import Session
-from fastapi.security import OAuth2PasswordBearer
-
-from src.application.security.security_interfaces import IPasswordHasher, ITokenService
-from src.application.user.auth_use_cases import (
-    LoginUserUseCase,
-    RegisterUserUseCase,
-    LogoutUserUseCase
-)
 from src.domain.user.repository_interface import IUserRepository
 from src.infrastructure.database.sql.database import get_db
 from src.infrastructure.security.security_impl import BcryptPasswordHasher, JwtTokenService
 from src.infrastructure.user.repository_impl import UserRepository
-from src.application.user.dto import TokenData 
+from src.application.user.dto import TokenData
+from src.domain.friend.repository_interface import IFriendRepository
+from src.infrastructure.friend.repository_impl import FriendRepository
+from src.application.friend.use_cases import FriendUseCases
+from src.domain.user.entities import User as UserEntity
 
 def get_db_session() -> Session:
     yield from get_db()
 
 def get_user_repository_impl(db: Session = Depends(get_db_session)) -> UserRepository:
     return UserRepository(db)
+
+def get_friend_repository_impl(db: Session = Depends(get_db_session)) -> FriendRepository:
+    return FriendRepository()
+
+def get_friend_use_cases(
+    friend_repo: IFriendRepository = Depends(get_friend_repository_impl)
+) -> FriendUseCases:
+    return FriendUseCases(friend_repo)
 
 def get_password_hasher_impl() -> BcryptPasswordHasher:
     return BcryptPasswordHasher()
@@ -83,11 +75,12 @@ def provide_logout_user_use_case(
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/login")
 
-async def get_current_user_id(
+async def get_current_user(
     db: Session = Depends(get_db_session),
     token: str = Depends(oauth2_scheme),
-    token_service: ITokenService = Depends(provide_token_service)
-) -> int:
+    token_service: ITokenService = Depends(provide_token_service),
+    user_repo: IUserRepository = Depends(provide_user_repository)
+) -> UserEntity:
     user_id = token_service.verify_token(db, token)
     if user_id is None:
         raise HTTPException(
@@ -95,4 +88,11 @@ async def get_current_user_id(
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    return user_id
+    user = user_repo.get_user_by_id(db, user_id)
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return user

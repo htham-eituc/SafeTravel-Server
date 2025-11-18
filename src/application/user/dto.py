@@ -3,11 +3,11 @@ from datetime import datetime
 from typing import Optional
 
 class UserBase(BaseModel):
-    name: str
-    email: EmailStr
+    username: str
+    email: Optional[EmailStr] = None
     phone: Optional[str] = None
     avatar_url: Optional[str] = None
-    full_name: Optional[str] = None # Thêm full_name
+    full_name: str # full_name là bắt buộc cho đăng ký
 
 from pydantic import Field # New import
 
@@ -27,7 +27,7 @@ class UserInDB(UserBase):
         from_attributes = True
 
 class UserLoginDTO(BaseModel):
-    email: EmailStr
+    username: str
     password: str
 
 class UserRegisterDTO(UserCreate):

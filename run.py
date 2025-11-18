@@ -2,20 +2,28 @@ from fastapi import FastAPI
 from dotenv import load_dotenv
 import os
 from src.presentation.auth_routes import router as auth_router
+from src.presentation.friend_routes import router as friend_router
 from src.infrastructure.database.sql.database import create_db_and_tables # Import for DB creation
 import src.infrastructure # Import the infrastructure package to load all models
+from contextlib import asynccontextmanager
 
 load_dotenv()
-app = FastAPI()
 
-# Create database tables on startup
-@app.on_event("startup")
-def on_startup():
-    create_db_and_tables()
+from src.config.settings import get_settings
+
+settings = get_settings()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    if settings.ENVIRONMENT == "development":
+        create_db_and_tables()
+    yield
+
+app = FastAPI(lifespan=lifespan)
 
 app.include_router(auth_router, prefix="/api", tags=["auth"])
+app.include_router(friend_router, prefix="/api", tags=["friends"])
 # app.include_router(users.router, prefix="/api", tags=["users"])
-# app.include_router(friends.router, prefix="/api", tags=["friends"])
 # app.include_router(circles.router, prefix="/api", tags=["circles"])
 # app.include_router(circle_members.router, prefix="/api", tags=["circle_members"])
 

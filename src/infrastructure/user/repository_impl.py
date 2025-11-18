@@ -12,14 +12,14 @@ class UserRepository(IUserRepository):
     def __init__(self, db: Session):
         self.db = db
 
-    def get_user(self, db: Session, user_id: int) -> Optional[UserEntity]:
+    def get_user_by_id(self, db: Session, user_id: int) -> Optional[UserEntity]:
         db_user = self.db.query(User).filter(User.id == user_id).first()
         if db_user:
             return UserEntity.model_validate(db_user.__dict__)
         return None
 
-    def get_user_by_email(self, db: Session, email: str) -> Optional[UserEntity]:
-        db_user = self.db.query(User).filter(User.email == email).first()
+    def get_user_by_username(self, db: Session, username: str) -> Optional[UserEntity]:
+        db_user = self.db.query(User).filter(User.username == username).first()
         if db_user:
             return UserEntity.model_validate(db_user.__dict__)
         return None

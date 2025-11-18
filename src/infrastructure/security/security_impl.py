@@ -77,7 +77,7 @@ class JwtTokenService(ITokenService):
             logger.error(f"JWTError during token verification: {e}")
             raise credentials_exception
         
-        user = self.user_repo.get_user(db, token_data.user_id)
+        user = self.user_repo.get_user_by_id(db, token_data.user_id)
         if user is None:
             logger.warning(f"User with ID {token_data.user_id} not found in repository.")
             raise credentials_exception
