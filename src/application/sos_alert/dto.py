@@ -4,6 +4,7 @@ from typing import Optional
 
 class SOSAlertBase(BaseModel):
     user_id: int
+    circle_id: Optional[int] = None # Added circle_id
     message: Optional[str] = None
     latitude: float
     longitude: float

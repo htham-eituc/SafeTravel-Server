@@ -34,6 +34,12 @@ This project provides the backend API for the SafeTravel application, built with
       - [Get Specific Circle](#get-specific-circle)
       - [Update Circle](#update-circle)
       - [Delete Circle](#delete-circle)
+    - [Circle Endpoints](#circle-endpoints-1)
+      - [Create Circle](#create-circle-1)
+      - [Get Circles](#get-circles-1)
+      - [Get Specific Circle](#get-specific-circle-1)
+      - [Update Circle](#update-circle-1)
+      - [Delete Circle](#delete-circle-1)
     - [Circle Member Endpoints](#circle-member-endpoints)
       - [Add Circle Member](#add-circle-member)
       - [Get Circle Members by Circle ID](#get-circle-members-by-circle-id)
@@ -329,6 +335,67 @@ All circle endpoints require authentication.
     -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
 -   **Expected Response:** `204 No Content`.
 
+### Circle Endpoints
+
+All circle endpoints require authentication.
+
+#### Create Circle
+
+-   **Method:** `POST`
+-   **URL:** `http://127.0.0.1:8000/api/circles`
+-   **Headers:**
+    -   `Content-Type`: `application/json`
+    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
+-   **Body:** (raw, JSON)
+    ```json
+    {
+      "circle_name": "Family Circle",
+      "description": "My family members"
+    }
+    ```
+-   **Expected Response:** `201 Created` with new circle details.
+    **Note:** When a new circle is created, any existing active circles for the user will be set to `inactive`, and the creator will automatically be added as a member with the role "owner".
+
+#### Get Circles
+
+-   **Method:** `GET`
+-   **URL:** `http://127.0.0.1:8000/api/circles`
+-   **Headers:**
+    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
+-   **Expected Response:** `200 OK` with a list of circles owned by the current user.
+
+#### Get Specific Circle
+
+-   **Method:** `GET`
+-   **URL:** `http://127.0.0.1:8000/api/circles/{circle_id}` (Replace `{circle_id}` with an actual circle ID)
+-   **Headers:**
+    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
+-   **Expected Response:** `200 OK` with the specified circle's details.
+
+#### Update Circle
+
+-   **Method:** `PUT`
+-   **URL:** `http://127.0.0.1:8000/api/circles/{circle_id}`
+-   **Headers:**
+    -   `Content-Type`: `application/json`
+    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
+-   **Body:** (raw, JSON)
+    ```json
+    {
+      "circle_name": "Updated Family Circle",
+      "status": "inactive"
+    }
+    ```
+-   **Expected Response:** `200 OK` with the updated circle details.
+
+#### Delete Circle
+
+-   **Method:** `DELETE`
+-   **URL:** `http://127.0.0.1:8000/api/circles/{circle_id}`
+-   **Headers:**
+    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
+-   **Expected Response:** `204 No Content`.
+
 ### Circle Member Endpoints
 
 All circle member endpoints require authentication.
@@ -382,12 +449,13 @@ All SOS alert endpoints require authentication.
     ```json
     {
       "user_id": 1,
+      "circle_id": 1,
       "message": "I need help!",
       "latitude": 34.052235,
       "longitude": -118.243683
     }
     ```
-    (Replace `user_id` with the ID of the authenticated user sending the SOS.)
+    (Replace `user_id` with the ID of the authenticated user sending the SOS, and `circle_id` with the ID of their active circle.)
 -   **Expected Response:** `201 Created` with the new SOS alert details.
 
 #### Update SOS Alert Status
