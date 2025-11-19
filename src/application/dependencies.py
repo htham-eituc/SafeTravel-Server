@@ -1,0 +1,137 @@
+from fastapi import Depends, HTTPException, status
+from sqlalchemy.orm import Session
+from fastapi.security import OAuth2PasswordBearer
+
+from src.application.security.security_interfaces import IPasswordHasher, ITokenService
+from src.application.user.auth_use_cases import (
+    LoginUserUseCase,
+    RegisterUserUseCase,
+    LogoutUserUseCase
+)
+from src.domain.user.repository_interface import IUserRepository
+from src.infrastructure.database.sql.database import get_db
+from src.infrastructure.security.security_impl import BcryptPasswordHasher, JwtTokenService
+from src.infrastructure.user.repository_impl import UserRepository
+from src.application.user.dto import TokenData
+from src.domain.friend.repository_interface import IFriendRepository
+from src.infrastructure.friend.repository_impl import FriendRepository
+from src.application.friend.use_cases import FriendUseCases
+from src.domain.user.entities import User as UserEntity
+from src.domain.sos_alert.repository_interface import ISOSAlertRepository
+from src.infrastructure.sos_alert.repository_impl import SOSAlertRepository
+from src.application.sos_alert.use_cases import SOSAlertUseCases # Import SOSAlertUseCases
+from src.domain.notification.repository_interface import INotificationRepository
+from src.infrastructure.notification.repository_impl import NotificationRepository
+from src.application.notification.use_cases import NotificationUseCases
+from src.domain.circle.repository_interface import ICircleRepository # Import ICircleRepository
+from src.infrastructure.circle.repository_impl import CircleRepository # Import CircleRepository
+from src.domain.circle.member_repository_interface import ICircleMemberRepository # Import ICircleMemberRepository
+from src.infrastructure.circle.member_repository_impl import CircleMemberRepository # Import CircleMemberRepository
+from src.application.circle.use_cases import CircleUseCases # Import CircleUseCases
+
+def get_db_session() -> Session:
+    yield from get_db()
+
+def get_user_repository_impl(db: Session = Depends(get_db_session)) -> UserRepository:
+    return UserRepository(db)
+
+def get_friend_repository_impl(db: Session = Depends(get_db_session)) -> FriendRepository:
+    return FriendRepository()
+
+def get_friend_use_cases(
+    friend_repo: IFriendRepository = Depends(get_friend_repository_impl)
+) -> FriendUseCases:
+    return FriendUseCases(friend_repo)
+
+def get_sos_alert_repository_impl(db: Session = Depends(get_db_session)) -> SOSAlertRepository:
+    return SOSAlertRepository()
+
+def get_sos_alert_use_cases(
+    sos_alert_repo: ISOSAlertRepository = Depends(get_sos_alert_repository_impl)
+) -> SOSAlertUseCases:
+    return SOSAlertUseCases(sos_alert_repo)
+
+def get_notification_repository_impl(db: Session = Depends(get_db_session)) -> NotificationRepository:
+    return NotificationRepository()
+
+def get_notification_use_cases(
+    notification_repo: INotificationRepository = Depends(get_notification_repository_impl)
+) -> NotificationUseCases:
+    return NotificationUseCases(notification_repo)
+
+def get_password_hasher_impl() -> BcryptPasswordHasher:
+    return BcryptPasswordHasher()
+
+def get_token_service_impl(
+    user_repo_impl: UserRepository = Depends(get_user_repository_impl)
+) -> JwtTokenService:
+    return JwtTokenService(user_repo_impl)
+
+def provide_user_repository(
+    user_repo_impl: UserRepository = Depends(get_user_repository_impl)
+) -> IUserRepository:
+    return user_repo_impl
+
+def provide_password_hasher(
+    hasher_impl: BcryptPasswordHasher = Depends(get_password_hasher_impl)
+) -> IPasswordHasher:
+    return hasher_impl
+
+def provide_token_service(
+    token_service_impl: JwtTokenService = Depends(get_token_service_impl)
+) -> ITokenService:
+    return token_service_impl
+
+def provide_login_user_use_case(
+    user_repo: IUserRepository = Depends(provide_user_repository),
+    password_hasher: IPasswordHasher = Depends(provide_password_hasher),
+    token_service: ITokenService = Depends(provide_token_service)
+) -> LoginUserUseCase:
+    return LoginUserUseCase(user_repo, password_hasher, token_service)
+
+def provide_register_user_use_case(
+    user_repo: IUserRepository = Depends(provide_user_repository),
+    password_hasher: IPasswordHasher = Depends(provide_password_hasher)
+) -> RegisterUserUseCase:
+    return RegisterUserUseCase(user_repo, password_hasher)
+
+def provide_logout_user_use_case(
+    user_repo: IUserRepository = Depends(provide_user_repository)
+) -> LogoutUserUseCase:
+    return LogoutUserUseCase(user_repo)
+
+def get_circle_repository_impl(db: Session = Depends(get_db_session)) -> CircleRepository:
+    return CircleRepository()
+
+def get_circle_member_repository_impl(db: Session = Depends(get_db_session)) -> CircleMemberRepository:
+    return CircleMemberRepository()
+
+def get_circle_use_cases(
+    circle_repo: ICircleRepository = Depends(get_circle_repository_impl),
+    circle_member_repo: ICircleMemberRepository = Depends(get_circle_member_repository_impl)
+) -> CircleUseCases:
+    return CircleUseCases(circle_repo, circle_member_repo)
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/login")
+
+async def get_current_user(
+    db: Session = Depends(get_db_session),
+    token: str = Depends(oauth2_scheme),
+    token_service: ITokenService = Depends(provide_token_service),
+    user_repo: IUserRepository = Depends(provide_user_repository)
+) -> UserEntity:
+    user_id = token_service.verify_token(db, token)
+    if user_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    user = user_repo.get_user_by_id(db, user_id)
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return user

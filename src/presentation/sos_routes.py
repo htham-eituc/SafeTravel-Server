@@ -1,0 +1,144 @@
+from fastapi import APIRouter, Depends, HTTPException, status
+from typing import List, Annotated
+from sqlalchemy.orm import Session
+from src.application.dependencies import (
+    get_current_user,
+    get_db_session,
+    get_sos_alert_use_cases, # Changed from provide_sos_alert_use_cases
+    get_friend_use_cases, # Changed from provide_friend_use_case
+    get_notification_use_cases, # Changed from provide_notification_use_case
+    get_circle_use_cases # Changed from provide_circle_use_cases
+)
+from src.application.sos_alert.dto import SOSAlertCreate, SOSAlertUpdate, SOSAlertInDB
+from src.application.sos_alert.use_cases import SOSAlertUseCases # Changed from SOSService
+from src.application.friend.use_cases import FriendUseCases
+from src.application.notification.use_cases import NotificationUseCases
+from src.application.notification.dto import NotificationCreate
+from src.application.circle.use_cases import CircleUseCases # Added CircleUseCases
+from src.domain.user.entities import User as UserEntity
+from datetime import datetime
+
+router = APIRouter()
+
+@router.post("/sos", response_model=SOSAlertInDB, status_code=status.HTTP_201_CREATED)
+async def send_sos_alert(
+    sos_data: SOSAlertCreate,
+    current_user: Annotated[UserEntity, Depends(get_current_user)],
+    db: Session = Depends(get_db_session),
+    sos_alert_use_cases: SOSAlertUseCases = Depends(get_sos_alert_use_cases), # Changed dependency
+    circle_use_cases: CircleUseCases = Depends(get_circle_use_cases) # Changed dependency
+):
+    """
+    Send an SOS alert.
+    """
+    try:
+        # Ensure the user_id in sos_data matches the authenticated user
+        if sos_data.user_id != current_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Not authorized to send SOS for another user."
+            )
+        
+        # Get the user's active circle
+        active_circles = circle_use_cases.get_circles_by_owner(db, current_user.id)
+        active_circle_id = None
+        for circle in active_circles:
+            if circle.status == "active":
+                active_circle_id = circle.id
+                break
+        
+        if active_circle_id is None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="User does not have an active circle to send SOS to."
+            )
+        
+        # Update sos_data with the active circle_id
+        sos_data.circle_id = active_circle_id
+
+        new_sos_alert = sos_alert_use_cases.create_sos_alert(db, sos_data) # Changed method call
+        return new_sos_alert
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+
+@router.post("/sos/{alert_id}/status", response_model=SOSAlertInDB)
+async def update_sos_alert_status(
+    alert_id: int,
+    sos_update: SOSAlertUpdate,
+    current_user: Annotated[UserEntity, Depends(get_current_user)],
+    db: Session = Depends(get_db_session),
+    sos_alert_use_cases: SOSAlertUseCases = Depends(get_sos_alert_use_cases), # Changed dependency
+    friend_use_case: FriendUseCases = Depends(get_friend_use_cases), # Changed dependency
+    notification_use_case: NotificationUseCases = Depends(get_notification_use_cases) # Changed dependency
+):
+    """
+    Update the status of an SOS alert.
+    If status is "resolved", notify all friends of the user who sent the SOS.
+    """
+    try:
+        # First, get the existing SOS alert to check ownership
+        existing_alert = sos_alert_use_cases.get_sos_alert(db, alert_id) # Changed method call
+        if not existing_alert:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="SOS alert not found."
+            )
+        
+        # Ensure the current user is authorized to update this SOS alert
+        if existing_alert.user_id != current_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Not authorized to update this SOS alert."
+            )
+
+        # Update resolved_at if status is changing to "resolved"
+        if sos_update.status == "resolved" and existing_alert.status != "resolved":
+            sos_update.resolved_at = datetime.now()
+        elif sos_update.status != "resolved" and existing_alert.status == "resolved":
+            sos_update.resolved_at = None # Clear resolved_at if status changes from resolved
+
+        updated_alert = sos_alert_use_cases.update_sos_alert(db, alert_id, sos_update) # Changed method call
+        if not updated_alert:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="SOS alert not found after update attempt."
+            )
+
+        # If status is resolved, notify friends
+        if updated_alert.status == "resolved":
+            friends = friend_use_case.get_friends_by_user_id(db, updated_alert.user_id)
+            for friend in friends:
+                notification_data = NotificationCreate(
+                    user_id=friend.id,
+                    message=f"Your friend {current_user.username}'s SOS alert has been resolved.",
+                    is_read=False
+                )
+                notification_use_case.create_notification(db, notification_data)
+
+        return updated_alert
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+
+@router.get("/sos/my_alerts", response_model=List[SOSAlertInDB])
+async def get_my_sos_alerts(
+    current_user: Annotated[UserEntity, Depends(get_current_user)],
+    db: Session = Depends(get_db_session),
+    sos_alert_use_cases: SOSAlertUseCases = Depends(get_sos_alert_use_cases) # Changed dependency
+):
+    """
+    Get all SOS alerts for the current authenticated user.
+    """
+    try:
+        alerts = sos_alert_use_cases.get_sos_alerts_by_user(db, current_user.id) # Changed method call
+        return alerts
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An error occurred: {str(e)}"
+        )
