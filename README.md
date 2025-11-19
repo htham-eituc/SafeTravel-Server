@@ -19,9 +19,30 @@ This project provides the backend API for the SafeTravel application, built with
   - [API Documentation and Testing](#api-documentation-and-testing)
   - [API Endpoints](#api-endpoints)
     - [Authentication Endpoints](#authentication-endpoints)
+      - [Register User](#register-user)
+      - [Login User](#login-user)
+      - [Logout User (Authenticated)](#logout-user-authenticated)
     - [Friend Management Endpoints](#friend-management-endpoints)
+      - [Send Friend Request](#send-friend-request)
+      - [Get Pending Friend Requests](#get-pending-friend-requests)
+      - [Accept Friend Request](#accept-friend-request)
+      - [Reject Friend Request](#reject-friend-request)
+      - [Get User's Friends](#get-users-friends)
     - [Circle Endpoints](#circle-endpoints)
+      - [Create Circle](#create-circle)
+      - [Get Circles](#get-circles)
+      - [Get Specific Circle](#get-specific-circle)
+      - [Update Circle](#update-circle)
+      - [Delete Circle](#delete-circle)
     - [Circle Member Endpoints](#circle-member-endpoints)
+      - [Add Circle Member](#add-circle-member)
+      - [Get Circle Members by Circle ID](#get-circle-members-by-circle-id)
+      - [Remove Circle Member](#remove-circle-member)
+    - [SOS Alert Endpoints](#sos-alert-endpoints)
+      - [Send SOS Alert](#send-sos-alert)
+      - [Update SOS Alert Status](#update-sos-alert-status)
+      - [Get My SOS Alerts](#get-my-sos-alerts)
+    - [Other Endpoints (Conceptual)](#other-endpoints-conceptual)
   - [Project Structure](#project-structure)
   - [Contributing](#contributing)
   - [License](#license)
@@ -346,13 +367,59 @@ All circle member endpoints require authentication.
     -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
 -   **Expected Response:** `204 No Content`.
 
+### SOS Alert Endpoints
+
+All SOS alert endpoints require authentication.
+
+#### Send SOS Alert
+
+-   **Method:** `POST`
+-   **URL:** `http://127.0.0.1:8000/api/sos`
+-   **Headers:**
+    -   `Content-Type`: `application/json`
+    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
+-   **Body:** (raw, JSON)
+    ```json
+    {
+      "user_id": 1,
+      "message": "I need help!",
+      "latitude": 34.052235,
+      "longitude": -118.243683
+    }
+    ```
+    (Replace `user_id` with the ID of the authenticated user sending the SOS.)
+-   **Expected Response:** `201 Created` with the new SOS alert details.
+
+#### Update SOS Alert Status
+
+-   **Method:** `POST`
+-   **URL:** `http://127.0.0.1:8000/api/sos/{alert_id}/status`
+-   **Headers:**
+    -   `Content-Type`: `application/json`
+    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
+-   **Body:** (raw, JSON)
+    ```json
+    {
+      "status": "resolved"
+    }
+    ```
+    (Replace `{alert_id}` with the ID of the SOS alert to update.)
+-   **Expected Response:** `200 OK` with the updated SOS alert details.
+
+#### Get My SOS Alerts
+
+-   **Method:** `GET`
+-   **URL:** `http://127.0.0.1:8000/api/sos/my_alerts`
+-   **Headers:**
+    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
+-   **Expected Response:** `200 OK` with a list of SOS alerts for the authenticated user.
+
 ### Other Endpoints (Conceptual)
 
 The following endpoints are part of the project structure but require further implementation and testing:
 
 -   **Location Endpoints:** For managing user locations.
 -   **Notification Endpoints:** For handling user notifications.
--   **SOS Alert Endpoints:** For managing SOS alerts.
 -   **Admin Log Endpoints:** For administrative logging.
 
 ## Project Structure

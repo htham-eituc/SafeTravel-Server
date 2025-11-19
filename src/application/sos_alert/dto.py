@@ -4,9 +4,9 @@ from typing import Optional
 
 class SOSAlertBase(BaseModel):
     user_id: int
+    message: Optional[str] = None
     latitude: float
     longitude: float
-    message: Optional[str] = None
     status: str = "pending"
 
 class SOSAlertCreate(SOSAlertBase):

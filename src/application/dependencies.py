@@ -17,6 +17,17 @@ from src.domain.friend.repository_interface import IFriendRepository
 from src.infrastructure.friend.repository_impl import FriendRepository
 from src.application.friend.use_cases import FriendUseCases
 from src.domain.user.entities import User as UserEntity
+from src.domain.sos_alert.repository_interface import ISOSAlertRepository
+from src.infrastructure.sos_alert.repository_impl import SOSAlertRepository
+from src.application.sos_alert.use_cases import SOSAlertUseCases # Import SOSAlertUseCases
+from src.domain.notification.repository_interface import INotificationRepository
+from src.infrastructure.notification.repository_impl import NotificationRepository
+from src.application.notification.use_cases import NotificationUseCases
+from src.domain.circle.repository_interface import ICircleRepository # Import ICircleRepository
+from src.infrastructure.circle.repository_impl import CircleRepository # Import CircleRepository
+from src.domain.circle.member_repository_interface import ICircleMemberRepository # Import ICircleMemberRepository
+from src.infrastructure.circle.member_repository_impl import CircleMemberRepository # Import CircleMemberRepository
+from src.application.circle.use_cases import CircleUseCases # Import CircleUseCases
 
 def get_db_session() -> Session:
     yield from get_db()
@@ -31,6 +42,22 @@ def get_friend_use_cases(
     friend_repo: IFriendRepository = Depends(get_friend_repository_impl)
 ) -> FriendUseCases:
     return FriendUseCases(friend_repo)
+
+def get_sos_alert_repository_impl(db: Session = Depends(get_db_session)) -> SOSAlertRepository:
+    return SOSAlertRepository()
+
+def get_sos_alert_use_cases(
+    sos_alert_repo: ISOSAlertRepository = Depends(get_sos_alert_repository_impl)
+) -> SOSAlertUseCases:
+    return SOSAlertUseCases(sos_alert_repo)
+
+def get_notification_repository_impl(db: Session = Depends(get_db_session)) -> NotificationRepository:
+    return NotificationRepository()
+
+def get_notification_use_cases(
+    notification_repo: INotificationRepository = Depends(get_notification_repository_impl)
+) -> NotificationUseCases:
+    return NotificationUseCases(notification_repo)
 
 def get_password_hasher_impl() -> BcryptPasswordHasher:
     return BcryptPasswordHasher()
@@ -72,6 +99,18 @@ def provide_logout_user_use_case(
     user_repo: IUserRepository = Depends(provide_user_repository)
 ) -> LogoutUserUseCase:
     return LogoutUserUseCase(user_repo)
+
+def get_circle_repository_impl(db: Session = Depends(get_db_session)) -> CircleRepository:
+    return CircleRepository()
+
+def get_circle_member_repository_impl(db: Session = Depends(get_db_session)) -> CircleMemberRepository:
+    return CircleMemberRepository()
+
+def get_circle_use_cases(
+    circle_repo: ICircleRepository = Depends(get_circle_repository_impl),
+    circle_member_repo: ICircleMemberRepository = Depends(get_circle_member_repository_impl)
+) -> CircleUseCases:
+    return CircleUseCases(circle_repo, circle_member_repo)
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/login")
 

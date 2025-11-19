@@ -1,6 +1,5 @@
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from sqlalchemy.orm import Session
 from src.domain.user.repository_interface import IUserRepository
 from src.application.user.dto import UserCreate, UserUpdate
 from src.domain.user.entities import User as UserEntity
