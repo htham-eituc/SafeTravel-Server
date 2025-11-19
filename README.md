@@ -1,78 +1,74 @@
-# SafeTravel Backend API
+# SafeTravel-Server
 
-This project provides a backend API for a SafeTravel application, built with FastAPI, SQLAlchemy, and MySQL. It includes modules for user management, circles, circle members, friends, locations, notifications, SOS alerts, and admin logs.
+This project provides the backend API for the SafeTravel application, built with FastAPI, SQLAlchemy, and MySQL. It offers robust functionalities for user management, safety circles, friend connections, location tracking, notifications, SOS alerts, and administrative logging.
 
 ## Table of Contents
 
-- [SafeTravel Backend API](#safetravel-backend-api)
+- [SafeTravel-Server](#safetravel-server)
   - [Table of Contents](#table-of-contents)
   - [Features](#features)
+  - [Technologies Used](#technologies-used)
   - [Prerequisites](#prerequisites)
   - [Setup Instructions](#setup-instructions)
     - [1. Clone the Repository](#1-clone-the-repository)
-    - [2. Create a Virtual Environment](#2-create-a-virtual-environment)
+    - [2. Create and Activate a Virtual Environment](#2-create-and-activate-a-virtual-environment)
     - [3. Install Dependencies](#3-install-dependencies)
     - [4. Database Setup](#4-database-setup)
     - [5. Environment Variables](#5-environment-variables)
     - [6. Run the Application](#6-run-the-application)
-    - [7. Run Mock Database Test](#7-run-mock-database-test)
-  - [API Testing with Postman](#api-testing-with-postman)
-    - [Accessing API Documentation](#accessing-api-documentation)
+  - [API Documentation and Testing](#api-documentation-and-testing)
+  - [API Endpoints](#api-endpoints)
     - [Authentication Endpoints](#authentication-endpoints)
-      - [Register User](#register-user)
-      - [Login User](#login-user)
-      - [Get Current User (Authenticated)](#get-current-user-authenticated)
+    - [Friend Management Endpoints](#friend-management-endpoints)
     - [Circle Endpoints](#circle-endpoints)
-      - [Create Circle](#create-circle)
-      - [Get Circles](#get-circles)
-      - [Get Specific Circle](#get-specific-circle)
-      - [Update Circle](#update-circle)
-      - [Delete Circle](#delete-circle)
     - [Circle Member Endpoints](#circle-member-endpoints)
-      - [Add Circle Member](#add-circle-member)
-      - [Get Circle Members by Circle ID](#get-circle-members-by-circle-id)
-      - [Remove Circle Member](#remove-circle-member)
-    - [Friend Endpoints](#friend-endpoints)
-      - [Create Friend](#create-friend)
-      - [Get Friends by User ID](#get-friends-by-user-id)
-      - [Delete Friend](#delete-friend)
-    - [Other Endpoints (Conceptual)](#other-endpoints-conceptual)
+  - [Project Structure](#project-structure)
+  - [Contributing](#contributing)
+  - [License](#license)
 
 ## Features
 
-- User authentication (registration, login, token generation)
-- User management (CRUD operations)
-- Circle management (create, retrieve, update, delete circles)
-- Automatic deactivation of old circles when a new one is created by a user
-- Automatic addition of circle owner as a member with 'owner' role
-- Circle member management (add, retrieve, remove members)
-- Friend management
-- Location tracking (conceptual)
-- Notification system (conceptual)
-- SOS alert system (conceptual)
-- Admin logging (conceptual)
-- Mock database test for initial data population
+- **User Management:** Secure user registration, authentication (JWT), and profile management.
+- **Safety Circles:** Create and manage private circles for family and friends, with automatic owner assignment and status management.
+- **Friend Connections:** Establish and manage friend relationships between users, including sending, accepting, and rejecting friend requests.
+- **Location Tracking:** (Conceptual) Infrastructure for real-time location updates.
+- **Notifications:** (Conceptual) System for sending alerts and updates.
+- **SOS Alerts:** (Conceptual) Mechanism for users to send emergency alerts to their circles.
+- **Admin Logging:** (Conceptual) System for tracking administrative actions.
+- **Google Gemini AI Integration:** For potential future AI-powered features.
+- **Mock Database Test:** Automatically populates initial data for development and testing.
+
+## Technologies Used
+
+- **Backend Framework:** FastAPI
+- **Database:** MySQL (via SQLAlchemy ORM)
+- **Authentication:** JWT (JSON Web Tokens)
+- **Dependency Management:** `pip` with `requirements.txt`
+- **AI Integration:** Google Gemini API
+- **Deployment:** Uvicorn ASGI server
 
 ## Prerequisites
 
-Before you begin, ensure you have the following installed:
+Ensure you have the following installed on your system:
 
-- Python 3.8+
-- MySQL Server (e.g., via XAMPP, WAMP, or a standalone installation)
-- Postman (for API testing)
+-   Python 3.8+
+-   MySQL Server
+-   `git` (for cloning the repository)
 
 ## Setup Instructions
+
+Follow these steps to get the SafeTravel-Server up and running on your local machine.
 
 ### 1. Clone the Repository
 
 ```bash
-git clone <repository_url>
+git clone https://github.com/htham-eituc/SafeTravel-Server.git
 cd SafeTravel-Server
 ```
 
-### 2. Create a Virtual Environment
+### 2. Create and Activate a Virtual Environment
 
-It's recommended to use a virtual environment to manage project dependencies.
+It is highly recommended to use a virtual environment to isolate project dependencies.
 
 ```bash
 python -m venv venv
@@ -91,7 +87,7 @@ Activate the virtual environment:
 
 ### 3. Install Dependencies
 
-Install the required Python packages:
+Install all required Python packages using `pip`:
 
 ```bash
 pip install -r requirements.txt
@@ -102,34 +98,26 @@ pip install -r requirements.txt
 This project uses MySQL.
 
 1.  **Create a MySQL database:**
-    Open your MySQL client (e.g., phpMyAdmin, MySQL Workbench, or MySQL command-line client) and create a database named `safetravel`.
+    Using your preferred MySQL client (e.g., MySQL Workbench, phpMyAdmin, or command line), create a new database named `safetravel`.
 
     ```sql
     CREATE DATABASE safetravel;
     ```
 
-2.  **Ensure tables are created:**
-    The application will automatically create the necessary tables (`users`, `circles`, `circle_members`, `friends`, `locations`, `notifications`, `sos_alerts`, `admin_logs`) when it starts, based on the SQLAlchemy models.
+2.  **Database Schema:**
+    The application will automatically create all necessary tables (`users`, `circles`, `circle_members`, `friend_requests`, `friendships`, `locations`, `notifications`, `sos_alerts`, `admin_logs`) when it starts, based on the SQLAlchemy models.
 
-    **Important Note for Schema Updates:** If you modify any database models (e.g., add a new column), you might need to update your database schema. In a development environment, the simplest way to do this is to drop the affected tables and let the application recreate them. For example, if you modified the `circles` table and are encountering errors like "Unknown column 'description' in 'field list'", you would need to drop the `sos_alerts`, `circle_members`, and `circles` tables in that order due to foreign key constraints.
-
-    ```sql
-    -- Drop tables in reverse dependency order
-    DROP TABLE IF EXISTS safetravel.sos_alerts;
-    DROP TABLE IF EXISTS safetravel.circle_members;
-    DROP TABLE IF EXISTS safetravel.circles;
-    -- The application will recreate them on startup
-    ```
+    **Note on Schema Updates:** If you modify database models, you may need to drop existing tables to allow the application to recreate them with the updated schema. Always back up your data before performing such operations in a production environment.
 
 ### 5. Environment Variables
 
-Create a `.env` file in the root of your project directory by copying `.env.example`:
+Create a `.env` file in the root directory of the project by copying the provided example:
 
 ```bash
 cp .env.example .env
 ```
 
-Open the `.env` file and configure your database connection string and secret key:
+Open the newly created `.env` file and configure the following variables:
 
 ```
 DATABASE_URL="mysql+mysqlconnector://root:@127.0.0.1/safetravel"
@@ -137,9 +125,9 @@ SECRET_KEY="your_super_secret_key"
 GEMINI_API_KEY="your_api_key_here"
 ```
 
--   **`DATABASE_URL`**: Update this if your MySQL credentials or host are different.
--   **`SECRET_KEY`**: **Change `your_super_secret_key` to a strong, random key for production environments.**
--   **`GEMINI_API_KEY`**: Provide your API key for Gemini AI services.
+-   **`DATABASE_URL`**: Update with your MySQL connection string if your credentials or host differ.
+-   **`SECRET_KEY`**: **Crucially, replace `your_super_secret_key` with a strong, unique, and random key for production security.**
+-   **`GEMINI_API_KEY`**: Provide your API key for Google Gemini services.
 
 ### 6. Run the Application
 
@@ -149,25 +137,23 @@ Start the FastAPI application using Uvicorn:
 python -m uvicorn run:app --reload
 ```
 
-The application will run on `http://127.0.0.1:8000`. The `--reload` flag will automatically restart the server when code changes are detected.
+The server will typically run on `http://127.0.0.1:8000`. The `--reload` flag enables automatic server restarts on code changes, which is useful for development.
 
-### 7. Run Mock Database Test
+## API Documentation and Testing
 
-The mock database test (`src/tests/mock_db_test.py`) is configured to run automatically once when the server starts. It will create a `test.db` SQLite file and populate the `users` table with a mock user if one doesn't already exist. This is useful for development and testing purposes.
-
-## API Testing with Postman
-
-Once the application is running, you can test the API endpoints using Postman.
-
-### Accessing API Documentation
-
-You can access the interactive API documentation (Swagger UI) at:
+Once the application is running, you can access the interactive API documentation (Swagger UI) at:
 
 `http://127.0.0.1:8000/api/docs`
 
 Or the ReDoc documentation at:
 
 `http://127.0.0.1:8000/api/redoc`
+
+These interfaces provide detailed information about all available endpoints, request/response schemas, and allow you to test the API directly from your browser.
+
+## API Endpoints
+
+This section provides examples for testing the API endpoints using Postman.
 
 ### Authentication Endpoints
 
@@ -180,10 +166,12 @@ Or the ReDoc documentation at:
 -   **Body:** (raw, JSON)
     ```json
     {
-      "name": "Test User",
+      "username": "testuser",
       "email": "test@example.com",
       "phone": "1234567890",
-      "password": "testpassword"
+      "password": "testpassword",
+      "full_name": "Test User",
+      "avatar_url": "https://example.com/default_avatar.jpg"
     }
     ```
 -   **Expected Response:** `201 Created` with user details.
@@ -191,21 +179,73 @@ Or the ReDoc documentation at:
 #### Login User
 
 -   **Method:** `POST`
--   **URL:** `http://127.0.0.1:8000/api/token`
+-   **URL:** `http://127.0.0.1:8000/api/login`
 -   **Headers:**
     -   `Content-Type`: `application/x-www-form-urlencoded`
 -   **Body:** (x-www-form-urlencoded)
-    -   `username`: `test@example.com`
+    -   `username`: `testuser`
     -   `password`: `testpassword`
 -   **Expected Response:** `200 OK` with `access_token` and `token_type`. **Copy the `access_token` for authenticated requests.**
 
-#### Get Current User (Authenticated)
+#### Logout User (Authenticated)
 
--   **Method:** `GET`
--   **URL:** `http://127.0.0.1:8000/api/users/me`
+-   **Method:** `POST`
+-   **URL:** `http://127.0.0.1:8000/api/logout`
 -   **Headers:**
     -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN` (Replace `YOUR_ACCESS_TOKEN` with your actual token)
--   **Expected Response:** `200 OK` with current user details.
+-   **Expected Response:** `200 OK` with a success message.
+
+### Friend Management Endpoints
+
+All friend endpoints require authentication.
+
+#### Send Friend Request
+
+-   **Method:** `POST`
+-   **URL:** `http://127.0.0.1:8000/api/friend-requests`
+-   **Headers:**
+    -   `Content-Type`: `application/json`
+    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN` (Token of the sender)
+-   **Body:** (raw, JSON)
+    ```json
+    {
+      "receiver_username": "friend_username"
+    }
+    ```
+    (Replace `friend_username` with the username of the user you want to send a request to.)
+-   **Expected Response:** `201 Created` with the new friend request details.
+
+#### Get Pending Friend Requests
+
+-   **Method:** `GET`
+-   **URL:** `http://127.0.0.1:8000/api/friend-requests/pending`
+-   **Headers:**
+    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN` (Token of the receiver)
+-   **Expected Response:** `200 OK` with a list of pending friend requests for the current user.
+
+#### Accept Friend Request
+
+-   **Method:** `POST`
+-   **URL:** `http://127.0.0.1:8000/api/friend-requests/{request_id}/accept` (Replace `{request_id}` with the ID of the pending request)
+-   **Headers:**
+    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN` (Token of the receiver)
+-   **Expected Response:** `200 OK` with the details of the newly created friendship.
+
+#### Reject Friend Request
+
+-   **Method:** `POST`
+-   **URL:** `http://127.0.0.1:8000/api/friend-requests/{request_id}/reject` (Replace `{request_id}` with the ID of the pending request)
+-   **Headers:**
+    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN` (Token of the receiver)
+-   **Expected Response:** `200 OK` with the details of the rejected friend request.
+
+#### Get User's Friends
+
+-   **Method:** `GET`
+-   **URL:** `http://127.0.0.1:8000/api/friends`
+-   **Headers:**
+    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
+-   **Expected Response:** `200 OK` with a list of `User` objects who are friends with the current user.
 
 ### Circle Endpoints
 
@@ -306,43 +346,6 @@ All circle member endpoints require authentication.
     -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
 -   **Expected Response:** `204 No Content`.
 
-### Friend Endpoints
-
-All friend endpoints require authentication.
-
-#### Create Friend
-
--   **Method:** `POST`
--   **URL:** `http://127.0.0.1:8000/api/friends`
--   **Headers:**
-    -   `Content-Type`: `application/json`
-    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
--   **Body:** (raw, JSON)
-    ```json
-    {
-      "user_id": 1,
-      "friend_id": 2
-    }
-    ```
-    (Replace `user_id` with the current authenticated user's ID, and `friend_id` with another existing user's ID.)
--   **Expected Response:** `201 Created` with new friend relationship details.
-
-#### Get Friends by User ID
-
--   **Method:** `GET`
--   **URL:** `http://127.0.0.1:8000/api/friends`
--   **Headers:**
-    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
--   **Expected Response:** `200 OK` with a list of friends for the current user.
-
-#### Delete Friend
-
--   **Method:** `DELETE`
--   **URL:** `http://127.0.0.1:8000/api/friends/{friend_id}`
--   **Headers:**
-    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
--   **Expected Response:** `204 No Content`.
-
 ### Other Endpoints (Conceptual)
 
 The following endpoints are part of the project structure but require further implementation and testing:
@@ -351,3 +354,65 @@ The following endpoints are part of the project structure but require further im
 -   **Notification Endpoints:** For handling user notifications.
 -   **SOS Alert Endpoints:** For managing SOS alerts.
 -   **Admin Log Endpoints:** For administrative logging.
+
+## Project Structure
+
+The project follows a clean architecture pattern, separating concerns into `application`, `domain`, `infrastructure`, and `presentation` layers. This structure promotes maintainability, scalability, and testability by ensuring a clear separation of responsibilities.
+
+```
+SafeTravel-Server/
+├── .env.example
+├── .gitignore
+├── README.md
+├── requirements.txt
+├── run.py                  # Application entry point
+├── docs/                   # Project documentation
+├── logs/                   # Application logs
+└── src/
+    ├── application/        # Business logic and use cases
+    │   ├── admin_log/      # DTOs and use cases for admin logs
+    │   ├── circle/         # DTOs and use cases for circles and members
+    │   ├── friend/         # DTOs and use cases for friend connections
+    │   ├── location/       # DTOs and use cases for location tracking
+    │   ├── notification/   # DTOs and use cases for notifications
+    │   ├── security/       # Interfaces for security services (e.g., password hashing, token management)
+    │   ├── sos/            # Services for SOS functionalities
+    │   ├── sos_alert/      # DTOs and use cases for SOS alerts
+    │   └── user/           # DTOs and use cases for user management
+    ├── config/             # Configuration settings
+    ├── domain/             # Core entities, interfaces, and business rules
+    │   ├── admin_log/      # Admin log entities and repository interface
+    │   ├── circle/         # Circle entities and repository interfaces
+    │   ├── friend/         # Friend entities and repository interface
+    │   ├── location/       # Location entities and repository interface
+    │   ├── notification/   # Notification entities and repository interface
+    │   ├── sos_alert/      # SOS alert entities and repository interface
+    │   └── user/           # User entities and repository interface
+    ├── infrastructure/     # Database implementations, external services, AI clients
+    │   ├── admin_log/      # Admin log models and repository implementation
+    │   ├── ai/             # Google Gemini AI client
+    │   ├── circle/         # Circle models and repository implementations
+    │   ├── database/       # Database connection and ORM setup
+    │   │   ├── firebase/   # Firebase database implementation (if used)
+    │   │   └── sql/        # SQL database implementation (e.g., SQLAlchemy)
+    │   ├── external_service/ # External service integrations
+    │   ├── friend/         # Friend models and repository implementation
+    │   ├── location/       # Location models and repository implementation
+    │   ├── notification/   # Notification models and repository implementation
+    │   ├── security/       # Security implementations (e.g., Bcrypt, JWT)
+    │   ├── sos_alert/      # SOS alert models and repository implementation
+    │   └── user/           # User models and repository implementation
+    ├── presentation/       # FastAPI routes and API endpoints
+    │   ├── auth_routes.py  # Authentication related API routes
+    │   └── friend_routes.py # Friend management API routes
+    └── shared/             # Shared utilities (e.g., logger)
+        └── utils/          # Utility functions
+```
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit issues, feature requests, or pull requests.
+
+## License
+
+This project is licensed under the MIT License. See the `LICENSE` file for details.

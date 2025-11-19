@@ -5,7 +5,9 @@ from datetime import datetime
 class User(BaseModel):
     id: Optional[int] = None
     username: str
-    email: str
+    email: Optional[str] = None
+    phone: Optional[str] = None
+    avatar_url: Optional[str] = None
     hashed_password: str
     full_name: Optional[str] = None
     disabled: bool = False

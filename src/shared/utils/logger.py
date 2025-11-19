@@ -92,9 +92,10 @@ def get_logger(name: str, level: Optional[int] = None) -> logging.Logger:
         Logger instance
     """
     if level is None:
-        # Get level from environment or default to INFO
-        import os
-        level_name = os.getenv('LOG_LEVEL', 'INFO').upper()
+        # Get level from settings or default to INFO
+        from src.config.settings import get_settings
+        settings = get_settings()
+        level_name = settings.LOG_LEVEL.upper()
         level = getattr(logging, level_name, logging.INFO)
     
     return setup_logger(name, level)

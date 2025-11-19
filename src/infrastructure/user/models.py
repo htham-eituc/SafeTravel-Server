@@ -1,16 +1,18 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Boolean
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
-from ..database.database import Base
+from src.infrastructure.database.sql.database import Base
 
 class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(255), index=True)
-    email = Column(String(255), unique=True, index=True)
+    username = Column(String(255), unique=True, index=True)
+    email = Column(String(255), unique=True, index=True, nullable=True)
     phone = Column(String(20), nullable=True)
-    password_hash = Column(String(255))
+    hashed_password = Column(String(255))
+    full_name = Column(String(255), nullable=True)
+    disabled = Column(Boolean, default=False)
     avatar_url = Column(String(255), nullable=True)
     created_at = Column(DateTime, server_default=func.now())
 
@@ -20,5 +22,7 @@ class User(Base):
     notifications = relationship("Notification", back_populates="user")
     sos_alerts = relationship("SOSAlert", back_populates="user")
     admin_logs = relationship("AdminLog", back_populates="admin")
-    friends = relationship("Friend", foreign_keys="[Friend.user_id]", back_populates="user")
-    friend_of = relationship("Friend", foreign_keys="[Friend.friend_id]", back_populates="friend")
+    sent_friend_requests = relationship("FriendRequest", foreign_keys="[FriendRequest.sender_id]", back_populates="sender")
+    received_friend_requests = relationship("FriendRequest", foreign_keys="[FriendRequest.receiver_id]", back_populates="receiver")
+    friendships_as_user = relationship("Friendship", foreign_keys="[Friendship.user_id]", back_populates="user")
+    friendships_as_friend = relationship("Friendship", foreign_keys="[Friendship.friend_id]", back_populates="friend")
