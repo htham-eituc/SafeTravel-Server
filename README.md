@@ -48,7 +48,18 @@ This project provides the backend API for the SafeTravel application, built with
       - [Send SOS Alert](#send-sos-alert)
       - [Update SOS Alert Status](#update-sos-alert-status)
       - [Get My SOS Alerts](#get-my-sos-alerts)
-    - [Other Endpoints (Conceptual)](#other-endpoints-conceptual)
+    - [Notification Endpoints](#notification-endpoints)
+      - [Create Notification](#create-notification)
+      - [Get Notification by ID](#get-notification-by-id)
+      - [Get Notifications by User](#get-notifications-by-user)
+      - [Update Notification](#update-notification)
+      - [Delete Notification](#delete-notification)
+    - [Admin Log Endpoints](#admin-log-endpoints)
+      - [Create Admin Log](#create-admin-log)
+      - [Get Admin Log by ID](#get-admin-log-by-id)
+      - [Get Admin Logs by Admin](#get-admin-logs-by-admin)
+      - [Update Admin Log](#update-admin-log)
+      - [Delete Admin Log](#delete-admin-log)
   - [Project Structure](#project-structure)
   - [Contributing](#contributing)
   - [License](#license)
@@ -482,13 +493,126 @@ All SOS alert endpoints require authentication.
     -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
 -   **Expected Response:** `200 OK` with a list of SOS alerts for the authenticated user.
 
-### Other Endpoints (Conceptual)
+### Notification Endpoints
 
-The following endpoints are part of the project structure but require further implementation and testing:
+All notification endpoints require authentication.
 
--   **Location Endpoints:** For managing user locations.
--   **Notification Endpoints:** For handling user notifications.
--   **Admin Log Endpoints:** For administrative logging.
+#### Create Notification
+
+-   **Method:** `POST`
+-   **URL:** `http://127.0.0.1:8000/api/notifications`
+-   **Headers:**
+    -   `Content-Type`: `application/json`
+    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
+-   **Body:** (raw, JSON)
+    ```json
+    {
+      "user_id": 1,
+      "message": "Your friend accepted your request.",
+      "is_read": false
+    }
+    ```
+    (Replace `user_id` with the ID of the user to whom the notification is sent.)
+-   **Expected Response:** `201 Created` with new notification details.
+
+#### Get Notification by ID
+
+-   **Method:** `GET`
+-   **URL:** `http://127.0.0.1:8000/api/notifications/{notification_id}`
+-   **Headers:**
+    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
+-   **Expected Response:** `200 OK` with the specified notification's details.
+
+#### Get Notifications by User
+
+-   **Method:** `GET`
+-   **URL:** `http://127.0.0.1:8000/api/notifications`
+-   **Headers:**
+    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
+-   **Expected Response:** `200 OK` with a list of notifications for the authenticated user.
+
+#### Update Notification
+
+-   **Method:** `PUT`
+-   **URL:** `http://127.0.0.1:8000/api/notifications/{notification_id}`
+-   **Headers:**
+    -   `Content-Type`: `application/json`
+    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
+-   **Body:** (raw, JSON)
+    ```json
+    {
+      "is_read": true
+    }
+    ```
+-   **Expected Response:** `200 OK` with the updated notification details.
+
+#### Delete Notification
+
+-   **Method:** `DELETE`
+-   **URL:** `http://127.0.0.1:8000/api/notifications/{notification_id}`
+-   **Headers:**
+    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
+-   **Expected Response:** `204 No Content`.
+
+### Admin Log Endpoints
+
+All admin log endpoints require authentication.
+
+#### Create Admin Log
+
+-   **Method:** `POST`
+-   **URL:** `http://127.0.0.1:8000/api/admin_logs`
+-   **Headers:**
+    -   `Content-Type`: `application/json`
+    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
+-   **Body:** (raw, JSON)
+    ```json
+    {
+      "admin_id": 1,
+      "action": "User 'testuser' banned for inappropriate content."
+    }
+    ```
+    (Replace `admin_id` with the ID of the admin performing the action.)
+-   **Expected Response:** `201 Created` with new admin log details.
+
+#### Get Admin Log by ID
+
+-   **Method:** `GET`
+-   **URL:** `http://127.0.0.1:8000/api/admin_logs/{admin_log_id}`
+-   **Headers:**
+    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
+-   **Expected Response:** `200 OK` with the specified admin log's details.
+
+#### Get Admin Logs by Admin
+
+-   **Method:** `GET`
+-   **URL:** `http://127.0.0.1:8000/api/admins/{admin_id}/admin_logs`
+-   **Headers:**
+    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
+-   **Expected Response:** `200 OK` with a list of admin logs for the specified admin.
+
+#### Update Admin Log
+
+-   **Method:** `PUT`
+-   **URL:** `http://127.0.0.1:8000/api/admin_logs/{admin_log_id}`
+-   **Headers:**
+    -   `Content-Type`: `application/json`
+    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
+-   **Body:** (raw, JSON)
+    ```json
+    {
+      "action": "User 'testuser' ban reviewed and confirmed."
+    }
+    ```
+-   **Expected Response:** `200 OK` with the updated admin log details.
+
+#### Delete Admin Log
+
+-   **Method:** `DELETE`
+-   **URL:** `http://127.0.0.1:8000/api/admin_logs/{admin_log_id}`
+-   **Headers:**
+    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
+-   **Expected Response:** `204 No Content`.
 
 ## Project Structure
 
