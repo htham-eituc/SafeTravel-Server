@@ -47,10 +47,14 @@ class SOSAlertUseCases:
         )
         created_alert = self.sos_alert_repo.create_sos_alert(db, sos_alert_entity)
 
+        # Get the sender's username once
+        sender_user = self.user_repo.get_user_by_id(db, sos_alert_data.user_id)
+        sender_username = sender_user.username if sender_user else "Unknown User"
+
         # Send notifications to friends
         friends = self.friend_repo.get_user_friends(db, sos_alert_data.user_id)
         for friend in friends:
-            notification_message = f"Your friend {self.user_repo.get_user_by_id(db, sos_alert_data.user_id).username} has sent an SOS alert!"
+            notification_message = f"Your friend {sender_username} has sent an SOS alert!"
             notification_data = NotificationCreate(
                 user_id=friend.id,
                 title="SOS Alert from Friend",
