@@ -112,11 +112,18 @@ def get_circle_repository_impl(db: Session = Depends(get_db_session)) -> CircleR
 def get_circle_member_repository_impl(db: Session = Depends(get_db_session)) -> CircleMemberRepository:
     return CircleMemberRepository()
 
+from src.application.circle.member_use_cases import CircleMemberUseCases # Import CircleMemberUseCases
+
 def get_circle_use_cases(
     circle_repo: ICircleRepository = Depends(get_circle_repository_impl),
     circle_member_repo: ICircleMemberRepository = Depends(get_circle_member_repository_impl)
 ) -> CircleUseCases:
     return CircleUseCases(circle_repo, circle_member_repo)
+
+def get_circle_member_use_cases(
+    circle_member_repo: ICircleMemberRepository = Depends(get_circle_member_repository_impl)
+) -> CircleMemberUseCases:
+    return CircleMemberUseCases(circle_member_repo)
 
 def get_sos_alert_use_cases(
     sos_alert_repo: ISOSAlertRepository = Depends(get_sos_alert_repository_impl),

@@ -17,7 +17,7 @@ def create_notification_route(
     db: Session = Depends(get_db)
 ):
     notification = notification_use_cases.create_notification(db, notification_data)
-    return NotificationInDB.model_validate(notification)
+    return NotificationInDB.model_validate(notification.__dict__)
 
 @router.get("/notifications/{notification_id}", response_model=NotificationInDB)
 def get_notification_route(
@@ -28,7 +28,7 @@ def get_notification_route(
     notification = notification_use_cases.get_notification(db, notification_id)
     if not notification:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Notification not found")
-    return NotificationInDB.model_validate(notification)
+    return NotificationInDB.model_validate(notification.__dict__)
 
 from src.application.dependencies import get_current_user
 from src.domain.user.entities import User as UserEntity
@@ -42,7 +42,7 @@ def get_notifications_by_user_route(
     db: Session = Depends(get_db)
 ):
     notifications = notification_use_cases.get_notifications_by_user(db, current_user.id)
-    return [NotificationInDB.model_validate(n) for n in notifications]
+    return [NotificationInDB.model_validate(n.__dict__) for n in notifications]
 
 @router.put("/notifications/{notification_id}", response_model=NotificationInDB)
 def update_notification_route(
@@ -54,7 +54,7 @@ def update_notification_route(
     notification = notification_use_cases.update_notification(db, notification_id, notification_update)
     if not notification:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Notification not found")
-    return NotificationInDB.model_validate(notification)
+    return NotificationInDB.model_validate(notification.__dict__)
 
 @router.delete("/notifications/{notification_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_notification_route(

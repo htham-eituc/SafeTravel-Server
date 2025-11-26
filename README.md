@@ -22,6 +22,10 @@ This project provides the backend API for the SafeTravel application, built with
       - [Register User](#register-user)
       - [Login User](#login-user)
       - [Logout User (Authenticated)](#logout-user-authenticated)
+      - [Get Current User Information](#get-current-user-information)
+    - [User Management Endpoints](#user-management-endpoints)
+      - [Get User by ID](#get-user-by-id)
+      - [Delete User](#delete-user)
     - [Friend Management Endpoints](#friend-management-endpoints)
       - [Send Friend Request](#send-friend-request)
       - [Get Pending Friend Requests](#get-pending-friend-requests)
@@ -34,16 +38,10 @@ This project provides the backend API for the SafeTravel application, built with
       - [Get Specific Circle](#get-specific-circle)
       - [Update Circle](#update-circle)
       - [Delete Circle](#delete-circle)
-    - [Circle Endpoints](#circle-endpoints-1)
-      - [Create Circle](#create-circle-1)
-      - [Get Circles](#get-circles-1)
-      - [Get Specific Circle](#get-specific-circle-1)
-      - [Update Circle](#update-circle-1)
-      - [Delete Circle](#delete-circle-1)
     - [Circle Member Endpoints](#circle-member-endpoints)
       - [Add Circle Member](#add-circle-member)
-      - [Get Circle Members by Circle ID](#get-circle-members-by-circle-id)
       - [Remove Circle Member](#remove-circle-member)
+      - [Get Circle Members](#get-circle-members)
     - [SOS Alert Endpoints](#sos-alert-endpoints)
       - [Send SOS Alert](#send-sos-alert)
       - [Update SOS Alert Status](#update-sos-alert-status)
@@ -201,7 +199,7 @@ This section provides examples for testing the API endpoints using Postman.
 -   **URL:** `http://127.0.0.1:8000/api/register`
 -   **Headers:**
     -   `Content-Type`: `application/json`
--   **Body:** (raw, JSON)
+-   **Request Body (`UserRegisterDTO`):**
     ```json
     {
       "username": "testuser",
@@ -212,7 +210,18 @@ This section provides examples for testing the API endpoints using Postman.
       "avatar_url": "https://example.com/default_avatar.jpg"
     }
     ```
--   **Expected Response:** `201 Created` with user details.
+-   **Expected Response (`UserDTO`):** `201 Created`
+    ```json
+    {
+      "username": "testuser",
+      "email": "test@example.com",
+      "phone": "1234567890",
+      "avatar_url": "https://example.com/default_avatar.jpg",
+      "full_name": "Test User",
+      "id": 1,
+      "created_at": "2023-10-27T10:00:00.000000"
+    }
+    ```
 
 #### Login User
 
@@ -220,18 +229,80 @@ This section provides examples for testing the API endpoints using Postman.
 -   **URL:** `http://127.0.0.1:8000/api/login`
 -   **Headers:**
     -   `Content-Type`: `application/x-www-form-urlencoded`
--   **Body:** (x-www-form-urlencoded)
+-   **Request Body (`OAuth2PasswordRequestForm`):**
     -   `username`: `testuser`
     -   `password`: `testpassword`
--   **Expected Response:** `200 OK` with `access_token` and `token_type`. **Copy the `access_token` for authenticated requests.**
+-   **Expected Response (`AuthTokenDTO`):** `200 OK`
+    ```json
+    {
+      "access_token": "your_jwt_access_token",
+      "token_type": "bearer"
+    }
+    ```
+    **Copy the `access_token` for authenticated requests.**
 
 #### Logout User (Authenticated)
 
 -   **Method:** `POST`
 -   **URL:** `http://127.0.0.1:8000/api/logout`
 -   **Headers:**
-    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN` (Replace `YOUR_ACCESS_TOKEN` with your actual token)
--   **Expected Response:** `200 OK` with a success message.
+    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
+-   **Expected Response:** `200 OK`
+    ```json
+    {
+      "message": "Successfully logged out"
+    }
+    ```
+
+#### Get Current User Information
+
+-   **Method:** `GET`
+-   **URL:** `http://127.0.0.1:8000/api/users/me`
+-   **Headers:**
+    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
+-   **Expected Response (`UserDTO`):** `200 OK`
+    ```json
+    {
+      "username": "testuser",
+      "email": "test@example.com",
+      "phone": "1234567890",
+      "avatar_url": "https://example.com/default_avatar.jpg",
+      "full_name": "Test User",
+      "id": 1,
+      "created_at": "2023-10-27T10:00:00.000000"
+    }
+    ```
+
+### User Management Endpoints
+
+All user endpoints require authentication.
+
+#### Get User by ID
+
+-   **Method:** `GET`
+-   **URL:** `http://127.0.0.1:8000/api/users/{user_id}` (Replace `{user_id}` with an actual user ID)
+-   **Headers:**
+    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
+-   **Expected Response (`UserDTO`):** `200 OK`
+    ```json
+    {
+      "username": "anotheruser",
+      "email": "another@example.com",
+      "phone": "0987654321",
+      "avatar_url": null,
+      "full_name": "Another User",
+      "id": 2,
+      "created_at": "2023-10-27T10:05:00.000000"
+    }
+    ```
+
+#### Delete User
+
+-   **Method:** `DELETE`
+-   **URL:** `http://127.0.0.1:8000/api/users/{user_id}` (Replace `{user_id}` with the ID of the user to delete)
+-   **Headers:**
+    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN` (Token of the user to be deleted)
+-   **Expected Response:** `204 No Content`.
 
 ### Friend Management Endpoints
 
@@ -244,14 +315,23 @@ All friend endpoints require authentication.
 -   **Headers:**
     -   `Content-Type`: `application/json`
     -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN` (Token of the sender)
--   **Body:** (raw, JSON)
+-   **Request Body (`FriendRequestCreate`):**
     ```json
     {
       "receiver_username": "friend_username"
     }
     ```
-    (Replace `friend_username` with the username of the user you want to send a request to.)
--   **Expected Response:** `201 Created` with the new friend request details.
+-   **Expected Response (`FriendRequestResponse`):** `201 Created`
+    ```json
+    {
+      "id": 1,
+      "sender_id": 1,
+      "receiver_id": 2,
+      "status": "pending",
+      "created_at": "2023-10-27T10:10:00.000000",
+      "updated_at": "2023-10-27T10:10:00.000000"
+    }
+    ```
 
 #### Get Pending Friend Requests
 
@@ -259,7 +339,19 @@ All friend endpoints require authentication.
 -   **URL:** `http://127.0.0.1:8000/api/friend-requests/pending`
 -   **Headers:**
     -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN` (Token of the receiver)
--   **Expected Response:** `200 OK` with a list of pending friend requests for the current user.
+-   **Expected Response (List of `FriendRequestResponse`):** `200 OK`
+    ```json
+    [
+      {
+        "id": 1,
+        "sender_id": 1,
+        "receiver_id": 2,
+        "status": "pending",
+        "created_at": "2023-10-27T10:10:00.000000",
+        "updated_at": "2023-10-27T10:10:00.000000"
+      }
+    ]
+    ```
 
 #### Accept Friend Request
 
@@ -267,7 +359,15 @@ All friend endpoints require authentication.
 -   **URL:** `http://127.0.0.1:8000/api/friend-requests/{request_id}/accept` (Replace `{request_id}` with the ID of the pending request)
 -   **Headers:**
     -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN` (Token of the receiver)
--   **Expected Response:** `200 OK` with the details of the newly created friendship.
+-   **Expected Response (`FriendshipResponse`):** `200 OK`
+    ```json
+    {
+      "id": 1,
+      "user_id": 2,
+      "friend_id": 1,
+      "created_at": "2023-10-27T10:15:00.000000"
+    }
+    ```
 
 #### Reject Friend Request
 
@@ -275,7 +375,17 @@ All friend endpoints require authentication.
 -   **URL:** `http://127.0.0.1:8000/api/friend-requests/{request_id}/reject` (Replace `{request_id}` with the ID of the pending request)
 -   **Headers:**
     -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN` (Token of the receiver)
--   **Expected Response:** `200 OK` with the details of the rejected friend request.
+-   **Expected Response (`FriendRequestResponse`):** `200 OK`
+    ```json
+    {
+      "id": 1,
+      "sender_id": 1,
+      "receiver_id": 2,
+      "status": "rejected",
+      "created_at": "2023-10-27T10:10:00.000000",
+      "updated_at": "2023-10-27T10:20:00.000000"
+    }
+    ```
 
 #### Get User's Friends
 
@@ -283,7 +393,20 @@ All friend endpoints require authentication.
 -   **URL:** `http://127.0.0.1:8000/api/friends`
 -   **Headers:**
     -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
--   **Expected Response:** `200 OK` with a list of `User` objects who are friends with the current user.
+-   **Expected Response (List of `UserDTO`):** `200 OK`
+    ```json
+    [
+      {
+        "username": "frienduser",
+        "email": "friend@example.com",
+        "phone": "1122334455",
+        "avatar_url": null,
+        "full_name": "Friend User",
+        "id": 3,
+        "created_at": "2023-10-27T10:07:00.000000"
+      }
+    ]
+    ```
 
 ### Circle Endpoints
 
@@ -296,14 +419,23 @@ All circle endpoints require authentication.
 -   **Headers:**
     -   `Content-Type`: `application/json`
     -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
--   **Body:** (raw, JSON)
+-   **Request Body (`CircleCreate`):**
     ```json
     {
       "circle_name": "Family Circle",
       "description": "My family members"
     }
     ```
--   **Expected Response:** `201 Created` with new circle details.
+-   **Expected Response (`CircleInDB`):** `201 Created`
+    ```json
+    {
+      "circle_name": "Family Circle",
+      "description": "My family members",
+      "status": "active",
+      "id": 1,
+      "created_at": "2023-10-27T10:25:00.000000"
+    }
+    ```
     **Note:** When a new circle is created, any existing active circles for the user will be set to `inactive`, and the creator will automatically be added as a member with the role "owner".
 
 #### Get Circles
@@ -312,7 +444,18 @@ All circle endpoints require authentication.
 -   **URL:** `http://127.0.0.1:8000/api/circles`
 -   **Headers:**
     -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
--   **Expected Response:** `200 OK` with a list of circles owned by the current user.
+-   **Expected Response (List of `CircleInDB`):** `200 OK`
+    ```json
+    [
+      {
+        "circle_name": "Family Circle",
+        "description": "My family members",
+        "status": "active",
+        "id": 1,
+        "created_at": "2023-10-27T10:25:00.000000"
+      }
+    ]
+    ```
 
 #### Get Specific Circle
 
@@ -320,68 +463,16 @@ All circle endpoints require authentication.
 -   **URL:** `http://127.0.0.1:8000/api/circles/{circle_id}` (Replace `{circle_id}` with an actual circle ID)
 -   **Headers:**
     -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
--   **Expected Response:** `200 OK` with the specified circle's details.
-
-#### Update Circle
-
--   **Method:** `PUT`
--   **URL:** `http://127.0.0.1:8000/api/circles/{circle_id}`
--   **Headers:**
-    -   `Content-Type`: `application/json`
-    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
--   **Body:** (raw, JSON)
-    ```json
-    {
-      "circle_name": "Updated Family Circle",
-      "status": "inactive"
-    }
-    ```
--   **Expected Response:** `200 OK` with the updated circle details.
-
-#### Delete Circle
-
--   **Method:** `DELETE`
--   **URL:** `http://127.0.0.1:8000/api/circles/{circle_id}`
--   **Headers:**
-    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
--   **Expected Response:** `204 No Content`.
-
-### Circle Endpoints
-
-All circle endpoints require authentication.
-
-#### Create Circle
-
--   **Method:** `POST`
--   **URL:** `http://127.0.0.1:8000/api/circles`
--   **Headers:**
-    -   `Content-Type`: `application/json`
-    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
--   **Body:** (raw, JSON)
+-   **Expected Response (`CircleInDB`):** `200 OK`
     ```json
     {
       "circle_name": "Family Circle",
-      "description": "My family members"
+      "description": "My family members",
+      "status": "active",
+      "id": 1,
+      "created_at": "2023-10-27T10:25:00.000000"
     }
     ```
--   **Expected Response:** `201 Created` with new circle details.
-    **Note:** When a new circle is created, any existing active circles for the user will be set to `inactive`, and the creator will automatically be added as a member with the role "owner".
-
-#### Get Circles
-
--   **Method:** `GET`
--   **URL:** `http://127.0.0.1:8000/api/circles`
--   **Headers:**
-    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
--   **Expected Response:** `200 OK` with a list of circles owned by the current user.
-
-#### Get Specific Circle
-
--   **Method:** `GET`
--   **URL:** `http://127.0.0.1:8000/api/circles/{circle_id}` (Replace `{circle_id}` with an actual circle ID)
--   **Headers:**
-    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
--   **Expected Response:** `200 OK` with the specified circle's details.
 
 #### Update Circle
 
@@ -390,14 +481,23 @@ All circle endpoints require authentication.
 -   **Headers:**
     -   `Content-Type`: `application/json`
     -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
--   **Body:** (raw, JSON)
+-   **Request Body (`CircleUpdate`):**
     ```json
     {
       "circle_name": "Updated Family Circle",
       "status": "inactive"
     }
     ```
--   **Expected Response:** `200 OK` with the updated circle details.
+-   **Expected Response (`CircleInDB`):** `200 OK`
+    ```json
+    {
+      "circle_name": "Updated Family Circle",
+      "description": "My family members",
+      "status": "inactive",
+      "id": 1,
+      "created_at": "2023-10-27T10:25:00.000000"
+    }
+    ```
 
 #### Delete Circle
 
@@ -414,11 +514,11 @@ All circle member endpoints require authentication.
 #### Add Circle Member
 
 -   **Method:** `POST`
--   **URL:** `http://127.0.0.1:8000/api/circle_members`
+-   **URL:** `http://127.0.0.1:8000/api/circles/{circle_id}/members` (Replace `{circle_id}` with the ID of the circle)
 -   **Headers:**
     -   `Content-Type`: `application/json`
-    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
--   **Body:** (raw, JSON)
+    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN` (Token of the circle owner)
+-   **Request Body (`CircleMemberCreate`):**
     ```json
     {
       "circle_id": 1,
@@ -426,24 +526,53 @@ All circle member endpoints require authentication.
       "role": "member"
     }
     ```
-    (Replace `circle_id` and `member_id` with actual IDs. `member_id` should be an existing user's ID.)
--   **Expected Response:** `201 Created` with new circle member details.
-
-#### Get Circle Members by Circle ID
-
--   **Method:** `GET`
--   **URL:** `http://127.0.0.1:8000/api/circle_members/circle/{circle_id}`
--   **Headers:**
-    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
--   **Expected Response:** `200 OK` with a list of members in the specified circle.
+-   **Expected Response (`CircleMemberInDB`):** `201 Created`
+    ```json
+    {
+      "circle_id": 1,
+      "member_id": 2,
+      "role": "member",
+      "id": 1
+    }
+    ```
 
 #### Remove Circle Member
 
 -   **Method:** `DELETE`
--   **URL:** `http://127.0.0.1:8000/api/circle_members/{circle_member_id}`
+-   **URL:** `http://127.0.0.1:8000/api/circles/{circle_id}/members/{member_id}` (Replace `{circle_id}` and `{member_id}` with actual IDs)
+-   **Headers:**
+    -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN` (Token of the circle owner)
+-   **Expected Response:** `204 No Content`.
+
+#### Get Circle Members
+
+-   **Method:** `GET`
+-   **URL:** `http://127.0.0.1:8000/api/circles/{circle_id}/members` (Replace `{circle_id}` with an actual circle ID)
 -   **Headers:**
     -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
--   **Expected Response:** `204 No Content`.
+-   **Expected Response (List of `UserDTO`):** `200 OK`
+    ```json
+    [
+      {
+        "username": "testuser",
+        "email": "test@example.com",
+        "phone": "1234567890",
+        "avatar_url": "https://example.com/default_avatar.jpg",
+        "full_name": "Test User",
+        "id": 1,
+        "created_at": "2023-10-27T10:00:00.000000"
+      },
+      {
+        "username": "anotheruser",
+        "email": "another@example.com",
+        "phone": "0987654321",
+        "avatar_url": null,
+        "full_name": "Another User",
+        "id": 2,
+        "created_at": "2023-10-27T10:05:00.000000"
+      }
+    ]
+    ```
 
 ### SOS Alert Endpoints
 
@@ -456,34 +585,58 @@ All SOS alert endpoints require authentication.
 -   **Headers:**
     -   `Content-Type`: `application/json`
     -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
--   **Body:** (raw, JSON)
+-   **Request Body (`SOSAlertCreate`):**
+    ```json
+    {
+      "user_id": 1,
+      "message": "I need help!",
+      "latitude": 34.052235,
+      "longitude": -118.243683
+    }
+    ```
+    **Note:** The `circle_id` will be automatically determined from the user's active circle.
+-   **Expected Response (`SOSAlertInDB`):** `201 Created`
     ```json
     {
       "user_id": 1,
       "circle_id": 1,
       "message": "I need help!",
       "latitude": 34.052235,
-      "longitude": -118.243683
+      "longitude": -118.243683,
+      "status": "pending",
+      "id": 1,
+      "created_at": "2023-10-27T10:30:00.000000",
+      "resolved_at": null
     }
     ```
-    (Replace `user_id` with the ID of the authenticated user sending the SOS, and `circle_id` with the ID of their active circle.)
--   **Expected Response:** `201 Created` with the new SOS alert details.
 
 #### Update SOS Alert Status
 
 -   **Method:** `POST`
--   **URL:** `http://127.0.0.1:8000/api/sos/{alert_id}/status`
+-   **URL:** `http://127.0.0.1:8000/api/sos/{alert_id}/status` (Replace `{alert_id}` with the ID of the SOS alert to update)
 -   **Headers:**
     -   `Content-Type`: `application/json`
     -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
--   **Body:** (raw, JSON)
+-   **Request Body (`SOSAlertUpdate`):**
     ```json
     {
       "status": "resolved"
     }
     ```
-    (Replace `{alert_id}` with the ID of the SOS alert to update.)
--   **Expected Response:** `200 OK` with the updated SOS alert details.
+-   **Expected Response (`SOSAlertInDB`):** `200 OK`
+    ```json
+    {
+      "user_id": 1,
+      "circle_id": 1,
+      "message": "I need help!",
+      "latitude": 34.052235,
+      "longitude": -118.243683,
+      "status": "resolved",
+      "id": 1,
+      "created_at": "2023-10-27T10:30:00.000000",
+      "resolved_at": "2023-10-27T10:35:00.000000"
+    }
+    ```
 
 #### Get My SOS Alerts
 
@@ -491,7 +644,22 @@ All SOS alert endpoints require authentication.
 -   **URL:** `http://127.0.0.1:8000/api/sos/my_alerts`
 -   **Headers:**
     -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
--   **Expected Response:** `200 OK` with a list of SOS alerts for the authenticated user.
+-   **Expected Response (List of `SOSAlertInDB`):** `200 OK`
+    ```json
+    [
+      {
+        "user_id": 1,
+        "circle_id": 1,
+        "message": "I need help!",
+        "latitude": 34.052235,
+        "longitude": -118.243683,
+        "status": "resolved",
+        "id": 1,
+        "created_at": "2023-10-27T10:30:00.000000",
+        "resolved_at": "2023-10-27T10:35:00.000000"
+      }
+    ]
+    ```
 
 ### Notification Endpoints
 
@@ -504,16 +672,28 @@ All notification endpoints require authentication.
 -   **Headers:**
     -   `Content-Type`: `application/json`
     -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
--   **Body:** (raw, JSON)
+-   **Request Body (`NotificationCreate`):**
     ```json
     {
       "user_id": 1,
-      "message": "Your friend accepted your request.",
+      "title": "Friend Request Accepted",
+      "message": "Your friend 'anotheruser' accepted your request.",
+      "type": "FRIEND_REQUEST_ACCEPTED",
       "is_read": false
     }
     ```
-    (Replace `user_id` with the ID of the user to whom the notification is sent.)
--   **Expected Response:** `201 Created` with new notification details.
+-   **Expected Response (`NotificationInDB`):** `201 Created`
+    ```json
+    {
+      "user_id": 1,
+      "title": "Friend Request Accepted",
+      "message": "Your friend 'anotheruser' accepted your request.",
+      "type": "FRIEND_REQUEST_ACCEPTED",
+      "is_read": false,
+      "id": 1,
+      "created_at": "2023-10-27T10:40:00.000000"
+    }
+    ```
 
 #### Get Notification by ID
 
@@ -521,7 +701,18 @@ All notification endpoints require authentication.
 -   **URL:** `http://127.0.0.1:8000/api/notifications/{notification_id}`
 -   **Headers:**
     -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
--   **Expected Response:** `200 OK` with the specified notification's details.
+-   **Expected Response (`NotificationInDB`):** `200 OK`
+    ```json
+    {
+      "user_id": 1,
+      "title": "Friend Request Accepted",
+      "message": "Your friend 'anotheruser' accepted your request.",
+      "type": "FRIEND_REQUEST_ACCEPTED",
+      "is_read": false,
+      "id": 1,
+      "created_at": "2023-10-27T10:40:00.000000"
+    }
+    ```
 
 #### Get Notifications by User
 
@@ -529,7 +720,20 @@ All notification endpoints require authentication.
 -   **URL:** `http://127.0.0.1:8000/api/notifications`
 -   **Headers:**
     -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
--   **Expected Response:** `200 OK` with a list of notifications for the authenticated user.
+-   **Expected Response (List of `NotificationInDB`):** `200 OK`
+    ```json
+    [
+      {
+        "user_id": 1,
+        "title": "Friend Request Accepted",
+        "message": "Your friend 'anotheruser' accepted your request.",
+        "type": "FRIEND_REQUEST_ACCEPTED",
+        "is_read": false,
+        "id": 1,
+        "created_at": "2023-10-27T10:40:00.000000"
+      }
+    ]
+    ```
 
 #### Update Notification
 
@@ -538,13 +742,24 @@ All notification endpoints require authentication.
 -   **Headers:**
     -   `Content-Type`: `application/json`
     -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
--   **Body:** (raw, JSON)
+-   **Request Body (`NotificationUpdate`):**
     ```json
     {
       "is_read": true
     }
     ```
--   **Expected Response:** `200 OK` with the updated notification details.
+-   **Expected Response (`NotificationInDB`):** `200 OK`
+    ```json
+    {
+      "user_id": 1,
+      "title": "Friend Request Accepted",
+      "message": "Your friend 'anotheruser' accepted your request.",
+      "type": "FRIEND_REQUEST_ACCEPTED",
+      "is_read": true,
+      "id": 1,
+      "created_at": "2023-10-27T10:40:00.000000"
+    }
+    ```
 
 #### Delete Notification
 
@@ -565,15 +780,24 @@ All admin log endpoints require authentication.
 -   **Headers:**
     -   `Content-Type`: `application/json`
     -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
--   **Body:** (raw, JSON)
+-   **Request Body (`AdminLogCreate`):**
     ```json
     {
       "admin_id": 1,
-      "action": "User 'testuser' banned for inappropriate content."
+      "action": "User 'testuser' banned for inappropriate content.",
+      "target_id": 2
     }
     ```
-    (Replace `admin_id` with the ID of the admin performing the action.)
--   **Expected Response:** `201 Created` with new admin log details.
+-   **Expected Response (`AdminLogInDB`):** `201 Created`
+    ```json
+    {
+      "admin_id": 1,
+      "action": "User 'testuser' banned for inappropriate content.",
+      "target_id": 2,
+      "id": 1,
+      "created_at": "2023-10-27T10:45:00.000000"
+    }
+    ```
 
 #### Get Admin Log by ID
 
@@ -581,7 +805,16 @@ All admin log endpoints require authentication.
 -   **URL:** `http://127.0.0.1:8000/api/admin_logs/{admin_log_id}`
 -   **Headers:**
     -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
--   **Expected Response:** `200 OK` with the specified admin log's details.
+-   **Expected Response (`AdminLogInDB`):** `200 OK`
+    ```json
+    {
+      "admin_id": 1,
+      "action": "User 'testuser' banned for inappropriate content.",
+      "target_id": 2,
+      "id": 1,
+      "created_at": "2023-10-27T10:45:00.000000"
+    }
+    ```
 
 #### Get Admin Logs by Admin
 
@@ -589,7 +822,18 @@ All admin log endpoints require authentication.
 -   **URL:** `http://127.0.0.1:8000/api/admins/{admin_id}/admin_logs`
 -   **Headers:**
     -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
--   **Expected Response:** `200 OK` with a list of admin logs for the specified admin.
+-   **Expected Response (List of `AdminLogInDB`):** `200 OK`
+    ```json
+    [
+      {
+        "admin_id": 1,
+        "action": "User 'testuser' banned for inappropriate content.",
+        "target_id": 2,
+        "id": 1,
+        "created_at": "2023-10-27T10:45:00.000000"
+      }
+    ]
+    ```
 
 #### Update Admin Log
 
@@ -598,13 +842,22 @@ All admin log endpoints require authentication.
 -   **Headers:**
     -   `Content-Type`: `application/json`
     -   `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
--   **Body:** (raw, JSON)
+-   **Request Body (`AdminLogUpdate`):**
     ```json
     {
       "action": "User 'testuser' ban reviewed and confirmed."
     }
     ```
--   **Expected Response:** `200 OK` with the updated admin log details.
+-   **Expected Response (`AdminLogInDB`):** `200 OK`
+    ```json
+    {
+      "admin_id": 1,
+      "action": "User 'testuser' ban reviewed and confirmed.",
+      "target_id": 2,
+      "id": 1,
+      "created_at": "2023-10-27T10:45:00.000000"
+    }
+    ```
 
 #### Delete Admin Log
 

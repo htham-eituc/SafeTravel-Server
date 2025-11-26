@@ -52,14 +52,14 @@ class SOSAlertUseCases:
         sender_username = sender_user.username if sender_user else "Unknown User"
 
         # Send notifications to friends
-        friends = self.friend_repo.get_user_friends(db, sos_alert_data.user_id)
+        friends = self.friend_repo.get_friends_by_user_id(db, sos_alert_data.user_id)
         for friend in friends:
             notification_message = f"Your friend {sender_username} has sent an SOS alert!"
             notification_data = NotificationCreate(
                 user_id=friend.id,
-                title="SOS Alert from Friend",
+                title="SOS Alert from Friend", # Added title
                 message=notification_message,
-                type="SOS_FRIEND",
+                type="SOS_FRIEND", # Added type
                 is_read=False
             )
             self.notification_use_cases.create_notification(db, notification_data)
@@ -67,15 +67,15 @@ class SOSAlertUseCases:
         # Send notifications to active circle members
         active_circle = self.circle_repo.get_active_circle_by_owner_id(db, sos_alert_data.user_id)
         if active_circle:
-            circle_members = self.circle_member_repo.get_circle_members_by_circle_id(db, active_circle.id)
+            circle_members = self.circle_member_repo.get_circle_members_by_circle(db, active_circle.id)
             for member in circle_members:
                 if member.member_id != sos_alert_data.user_id: # Don't notify the sender
                     notification_message = f"A member of your active circle has sent an SOS alert!"
                     notification_data = NotificationCreate(
                         user_id=member.member_id,
-                        title="SOS Alert from Circle",
+                        title="SOS Alert from Circle", # Added title
                         message=notification_message,
-                        type="SOS_CIRCLE",
+                        type="SOS_CIRCLE", # Added type
                         is_read=False
                     )
                     self.notification_use_cases.create_notification(db, notification_data)

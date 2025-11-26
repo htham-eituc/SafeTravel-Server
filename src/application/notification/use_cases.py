@@ -19,10 +19,12 @@ class NotificationUseCases:
     def create_notification(self, db: Session, notification_data: NotificationCreate) -> NotificationEntity:
         notification_entity = NotificationEntity(
             user_id=notification_data.user_id,
+            title=notification_data.title,
             message=notification_data.message,
+            type=notification_data.type,
             is_read=notification_data.is_read,
             created_at=datetime.now()
-        )
+        ) # Added missing parenthesis
         return self.notification_repo.create_notification(db, notification_entity)
 
     def update_notification(self, db: Session, notification_id: int, notification_update: NotificationUpdate) -> Optional[NotificationEntity]:

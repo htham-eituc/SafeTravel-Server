@@ -45,3 +45,9 @@ class CircleRepository(ICircleRepository):
             db.commit()
             return True
         return False
+
+    def get_active_circle_by_owner_id(self, db: Session, owner_id: int) -> Optional[CircleEntity]:
+        db_circle = db.query(Circle).filter(Circle.owner_id == owner_id, Circle.status == "active").first()
+        if db_circle:
+            return CircleEntity.model_validate(db_circle.__dict__)
+        return None

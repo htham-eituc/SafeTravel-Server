@@ -1,0 +1,149 @@
+--- Register User 1 ---
+Message: User already registered.
+No response received (connection error or unexpected issue).
+
+--- Get User testuser1 (after existing registration) ---
+Message: Fetched existing user details.
+Status Code: 200
+Response JSON: {
+  "username": "testuser1",
+  "email": "test1@example.com",
+  "phone": "1234567891",
+  "avatar_url": "https://example.com/avatar1.jpg",
+  "full_name": "Test User 1",
+  "id": 1,
+  "created_at": "2025-11-26T12:42:01"
+}
+
+--- Register User 2 ---
+Message: User already registered.
+No response received (connection error or unexpected issue).
+
+--- Get User testuser2 (after existing registration) ---
+Message: Fetched existing user details.
+Status Code: 200
+Response JSON: {
+  "username": "testuser2",
+  "email": "test2@example.com",
+  "phone": "1234567892",
+  "avatar_url": "https://example.com/avatar2.jpg",
+  "full_name": "Test User 2",
+  "id": 2,
+  "created_at": "2025-11-26T12:42:01"
+}
+
+--- Send Friend Request (testuser1 to testuser2) ---
+Message: Failed to send friend request.
+No response received (connection error or unexpected issue).
+
+--- Get Pending Friend Requests (testuser2) ---
+Message: Fetched pending friend requests.
+Status Code: 200
+Response JSON: []
+
+--- Get Notifications (testuser1) ---
+Message: Fetched notifications.
+Status Code: 200
+Response JSON: []
+
+--- Create Circle (testuser1) ---
+Message: Circle created successfully.
+Status Code: 201
+Response JSON: {
+  "circle_name": "My Test Circle",
+  "description": "A circle for testing",
+  "status": "active",
+  "id": 6,
+  "created_at": "2025-11-26T12:49:49"
+}
+
+--- Add Member to Circle (testuser1 adds testuser2) ---
+Message: Member added to circle.
+Status Code: 201
+Response JSON: {
+  "circle_id": 6,
+  "member_id": 2,
+  "role": "member",
+  "id": 12
+}
+
+--- Send SOS Alert (testuser1 for circle 6) ---
+Message: SOS alert sent.
+Status Code: 201
+Response JSON: {
+  "user_id": 1,
+  "circle_id": 6,
+  "message": "Emergency in test circle!",
+  "latitude": 10.0,
+  "longitude": 20.0,
+  "status": "pending",
+  "id": 6,
+  "created_at": "2025-11-26T12:49:49",
+  "resolved_at": null
+}
+
+--- Get Notifications (testuser2 after SOS) ---
+Message: Fetched notifications after SOS.
+Status Code: 200
+Response JSON: [
+  {
+    "user_id": 2,
+    "title": "SOS Alert from Friend",
+    "message": "Your friend testuser1 has sent an SOS alert!",
+    "type": "SOS_FRIEND",
+    "is_read": false,
+    "id": 1,
+    "created_at": "2025-11-26T12:47:41"
+  },
+  {
+    "user_id": 2,
+    "title": "SOS Alert from Friend",
+    "message": "Your friend testuser1 has sent an SOS alert!",
+    "type": "SOS_FRIEND",
+    "is_read": false,
+    "id": 2,
+    "created_at": "2025-11-26T12:49:12"
+  },
+  {
+    "user_id": 2,
+    "title": "SOS Alert from Circle",
+    "message": "A member of your active circle has sent an SOS alert!",
+    "type": "SOS_CIRCLE",
+    "is_read": false,
+    "id": 3,
+    "created_at": "2025-11-26T12:49:12"
+  },
+  {
+    "user_id": 2,
+    "title": "SOS Alert from Friend",
+    "message": "Your friend testuser1 has sent an SOS alert!",
+    "type": "SOS_FRIEND",
+    "is_read": false,
+    "id": 4,
+    "created_at": "2025-11-26T12:49:49"
+  },
+  {
+    "user_id": 2,
+    "title": "SOS Alert from Circle",
+    "message": "A member of your active circle has sent an SOS alert!",
+    "type": "SOS_CIRCLE",
+    "is_read": false,
+    "id": 5,
+    "created_at": "2025-11-26T12:49:49"
+  }
+]
+
+--- Logout User testuser1 ---
+Message: User logged out.
+Status Code: 200
+Response JSON: {
+  "message": "Successfully logged out"
+}
+
+--- Logout User testuser2 ---
+Message: User logged out.
+Status Code: 200
+Response JSON: {
+  "message": "Successfully logged out"
+}
+

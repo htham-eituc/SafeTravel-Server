@@ -4,11 +4,13 @@ from sqlalchemy.orm import Session
 from src.application.dependencies import (
     get_current_user,
     get_db_session,
-    get_circle_use_cases
+    get_circle_use_cases,
+    get_circle_member_use_cases
 )
 from src.application.circle.dto import CircleCreate, CircleUpdate, CircleInDB
 from src.application.circle.member_dto import CircleMemberCreate, CircleMemberInDB
 from src.application.circle.use_cases import CircleUseCases
+from src.application.circle.member_use_cases import CircleMemberUseCases
 from src.domain.user.entities import User as UserEntity
 from src.application.user.dto import UserDTO
 
@@ -120,7 +122,8 @@ async def add_member_to_circle(
     member_data: CircleMemberCreate,
     current_user: Annotated[UserEntity, Depends(get_current_user)],
     db: Session = Depends(get_db_session),
-    circle_use_cases: CircleUseCases = Depends(get_circle_use_cases)
+    circle_use_cases: CircleUseCases = Depends(get_circle_use_cases),
+    circle_member_use_cases: CircleMemberUseCases = Depends(get_circle_member_use_cases)
 ):
     """
     Add a member to a specific circle.
@@ -133,20 +136,21 @@ async def add_member_to_circle(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to add members to this circle")
     
     try:
-        new_member = circle_use_cases.add_member_to_circle(db, circle_id, member_data.user_id, member_data.role)
+        new_member = circle_member_use_cases.create_circle_member(db, member_data)
         return new_member
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
-@router.delete("/circles/{circle_id}/members/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/circles/{circle_id}/members/{member_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def remove_member_from_circle(
     circle_id: int,
-    user_id: int,
+    member_id: int,
     current_user: Annotated[UserEntity, Depends(get_current_user)],
     db: Session = Depends(get_db_session),
-    circle_use_cases: CircleUseCases = Depends(get_circle_use_cases)
+    circle_use_cases: CircleUseCases = Depends(get_circle_use_cases),
+    circle_member_use_cases: CircleMemberUseCases = Depends(get_circle_member_use_cases)
 ):
     """
     Remove a member from a specific circle.
@@ -158,8 +162,15 @@ async def remove_member_from_circle(
     if existing_circle.owner_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to remove members from this circle")
     
-    if not circle_use_cases.remove_member_from_circle(db, circle_id, user_id):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Member not found in circle or could not be removed")
+    # Find the CircleMember entity to get its ID
+    circle_members = circle_member_use_cases.get_circle_members_by_circle(db, circle_id)
+    member_to_delete = next((cm for cm in circle_members if cm.member_id == member_id), None)
+
+    if not member_to_delete:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Member not found in circle")
+
+    if not circle_member_use_cases.delete_circle_member(db, member_to_delete.id):
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to delete member from circle")
 
 @router.get("/circles/{circle_id}/members", response_model=List[UserDTO])
 async def get_circle_members(

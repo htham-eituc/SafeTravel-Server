@@ -20,10 +20,12 @@ class NotificationRepository(INotificationRepository):
     def create_notification(self, db: Session, notification_data: NotificationEntity) -> NotificationEntity:
         db_notification = Notification(
             user_id=notification_data.user_id,
+            title=notification_data.title,
             message=notification_data.message,
+            type=notification_data.type,
             is_read=notification_data.is_read,
             created_at=notification_data.created_at
-        )
+        ) # Added missing parenthesis
         db.add(db_notification)
         db.commit()
         db.refresh(db_notification)
