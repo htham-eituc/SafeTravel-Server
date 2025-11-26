@@ -6,7 +6,8 @@ from src.application.dependencies import (
     get_db_session,
     get_circle_use_cases
 )
-from src.application.circle.dto import CircleCreate, CircleUpdate, CircleInDB, CircleMemberCreate, CircleMemberInDB
+from src.application.circle.dto import CircleCreate, CircleUpdate, CircleInDB
+from src.application.circle.member_dto import CircleMemberCreate, CircleMemberInDB
 from src.application.circle.use_cases import CircleUseCases
 from src.domain.user.entities import User as UserEntity
 from src.application.user.dto import UserDTO
