@@ -7,8 +7,8 @@ Response JSON: {
   "phone": "1234567891",
   "avatar_url": "https://example.com/avatar1.jpg",
   "full_name": "Test User 1",
-  "id": 11,
-  "created_at": "2025-11-26T16:56:55"
+  "id": 15,
+  "created_at": "2025-11-26T17:10:33"
 }
 
 --- Register User 2 ---
@@ -20,15 +20,15 @@ Response JSON: {
   "phone": "1234567892",
   "avatar_url": "https://example.com/avatar2.jpg",
   "full_name": "Test User 2",
-  "id": 12,
-  "created_at": "2025-11-26T16:56:55"
+  "id": 16,
+  "created_at": "2025-11-26T17:10:34"
 }
 
 --- Login User testuser1 ---
 Message: User logged in successfully.
 Status Code: 200
 Response JSON: {
-  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMSIsImV4cCI6MTc2NDE1MjgxNn0.Oehi_63THmOBoAIhlbtCZh2MirBKAgn534RKK2n9qww",
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxNSIsImV4cCI6MTc2NDE1MzYzNH0.iRO7SR7pKVva3s_Pnq7qzIpl9pSf-ucCgp6OyKCOYnI",
   "token_type": "bearer"
 }
 
@@ -36,7 +36,7 @@ Response JSON: {
 Message: User logged in successfully.
 Status Code: 200
 Response JSON: {
-  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMiIsImV4cCI6MTc2NDE1MjgxNn0.Hcfy5dW2WWCnBfhLW8U6n493ioxUbicharA56L2dwMo",
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxNiIsImV4cCI6MTc2NDE1MzYzNX0.iAq26ARB6lj7A9mg-xJKU0NTXYlezQB52oeS8fS_Iv8",
   "token_type": "bearer"
 }
 
@@ -49,8 +49,8 @@ Response JSON: {
   "phone": "1234567891",
   "avatar_url": "https://example.com/avatar1.jpg",
   "full_name": "Test User 1",
-  "id": 11,
-  "created_at": "2025-11-26T16:56:55"
+  "id": 15,
+  "created_at": "2025-11-26T17:10:33"
 }
 
 --- Get User by ID (testuser2 by testuser1) ---
@@ -62,20 +62,20 @@ Response JSON: {
   "phone": "1234567892",
   "avatar_url": "https://example.com/avatar2.jpg",
   "full_name": "Test User 2",
-  "id": 12,
-  "created_at": "2025-11-26T16:56:55"
+  "id": 16,
+  "created_at": "2025-11-26T17:10:34"
 }
 
 --- Send Friend Request (testuser1 to testuser2) ---
 Message: Friend request sent.
 Status Code: 201
 Response JSON: {
-  "id": 6,
-  "sender_id": 11,
-  "receiver_id": 12,
+  "id": 8,
+  "sender_id": 15,
+  "receiver_id": 16,
   "status": "pending",
-  "created_at": "2025-11-26T16:56:56",
-  "updated_at": "2025-11-26T16:56:56"
+  "created_at": "2025-11-26T17:10:35",
+  "updated_at": "2025-11-26T17:10:35"
 }
 
 --- Get Pending Friend Requests (testuser2) ---
@@ -83,12 +83,12 @@ Message: Fetched pending friend requests.
 Status Code: 200
 Response JSON: [
   {
-    "id": 6,
-    "sender_id": 11,
-    "receiver_id": 12,
+    "id": 8,
+    "sender_id": 15,
+    "receiver_id": 16,
     "status": "pending",
-    "created_at": "2025-11-26T16:56:56",
-    "updated_at": "2025-11-26T16:56:56"
+    "created_at": "2025-11-26T17:10:35",
+    "updated_at": "2025-11-26T17:10:35"
   }
 ]
 
@@ -96,10 +96,10 @@ Response JSON: [
 Message: Friend request accepted.
 Status Code: 200
 Response JSON: {
-  "id": 6,
-  "user_id": 11,
-  "friend_id": 12,
-  "created_at": "2025-11-26T16:56:56"
+  "id": 8,
+  "user_id": 15,
+  "friend_id": 16,
+  "created_at": "2025-11-26T17:10:35"
 }
 
 --- Get Friends (testuser1) ---
@@ -107,15 +107,15 @@ Message: Fetched friends list.
 Status Code: 200
 Response JSON: [
   {
-    "id": 12,
+    "id": 16,
     "username": "testuser2",
     "email": "test2@example.com",
     "phone": "1234567892",
     "avatar_url": "https://example.com/avatar2.jpg",
-    "hashed_password": "$2b$12$PEkRVmRCkzlP4oTEDCYzvOZgbo1exGcpDPky31JX1gmxS2kf7q.gG",
+    "hashed_password": "$2b$12$z6f9DEf0nwzXSwUdPV/vFuG1jBaFrRzjBLzMxXDHqZpke4L9d9rDm",
     "full_name": "Test User 2",
     "disabled": false,
-    "created_at": "2025-11-26T16:56:55"
+    "created_at": "2025-11-26T17:10:34"
   }
 ]
 
@@ -126,8 +126,8 @@ Response JSON: {
   "circle_name": "My Test Circle",
   "description": "A circle for testing",
   "status": "active",
-  "id": 12,
-  "created_at": "2025-11-26T16:56:56"
+  "id": 14,
+  "owner_id": 15
 }
 
 --- Get Circles (testuser1) ---
@@ -138,8 +138,8 @@ Response JSON: [
     "circle_name": "My Test Circle",
     "description": "A circle for testing",
     "status": "active",
-    "id": 12,
-    "created_at": "2025-11-26T16:56:56"
+    "id": 14,
+    "owner_id": 15
   }
 ]
 
@@ -150,8 +150,8 @@ Response JSON: {
   "circle_name": "My Test Circle",
   "description": "A circle for testing",
   "status": "active",
-  "id": 12,
-  "created_at": "2025-11-26T16:56:56"
+  "id": 14,
+  "owner_id": 15
 }
 
 --- Update Circle (testuser1) ---
@@ -161,36 +161,36 @@ Response JSON: {
   "circle_name": "My Test Circle",
   "description": "Updated description for test circle",
   "status": "active",
-  "id": 12,
-  "created_at": "2025-11-26T16:56:56"
+  "id": 14,
+  "owner_id": 15
 }
 
 --- Add Member to Circle (testuser1 adds testuser2) ---
 Message: Member added to circle.
 Status Code: 201
 Response JSON: {
-  "circle_id": 12,
-  "member_id": 12,
+  "circle_id": 14,
+  "member_id": 16,
   "role": "member",
-  "id": 24
+  "id": 28
 }
 
 --- Get Circle Members (testuser1) ---
 Message: Fetched circle members.
 No response received (connection error or unexpected issue).
 
---- Send SOS Alert (testuser1 for circle 12) ---
+--- Send SOS Alert (testuser1 for circle 14) ---
 Message: SOS alert sent.
 Status Code: 201
 Response JSON: {
-  "user_id": 11,
-  "circle_id": 12,
+  "user_id": 15,
+  "circle_id": 14,
   "message": "Emergency in test circle!",
   "latitude": 10.0,
   "longitude": 20.0,
   "status": "pending",
-  "id": 12,
-  "created_at": "2025-11-26T16:56:57",
+  "id": 14,
+  "created_at": "2025-11-26T17:10:35",
   "resolved_at": null
 }
 
@@ -199,22 +199,22 @@ Message: Fetched notifications after SOS.
 Status Code: 200
 Response JSON: [
   {
-    "user_id": 12,
+    "user_id": 16,
     "title": "SOS Alert from Friend",
     "message": "Your friend testuser1 has sent an SOS alert!",
     "type": "SOS_FRIEND",
     "is_read": false,
-    "id": 21,
-    "created_at": "2025-11-26T16:56:57"
+    "id": 27,
+    "created_at": "2025-11-26T17:10:35"
   },
   {
-    "user_id": 12,
+    "user_id": 16,
     "title": "SOS Alert from Circle",
     "message": "A member of your active circle has sent an SOS alert!",
     "type": "SOS_CIRCLE",
     "is_read": false,
-    "id": 22,
-    "created_at": "2025-11-26T16:56:57"
+    "id": 28,
+    "created_at": "2025-11-26T17:10:35"
   }
 ]
 
@@ -222,14 +222,14 @@ Response JSON: [
 Message: SOS alert status updated.
 Status Code: 200
 Response JSON: {
-  "user_id": 11,
-  "circle_id": 12,
+  "user_id": 15,
+  "circle_id": 14,
   "message": "Emergency in test circle!",
   "latitude": 10.0,
   "longitude": 20.0,
   "status": "resolved",
-  "id": 12,
-  "created_at": "2025-11-26T16:56:57",
+  "id": 14,
+  "created_at": "2025-11-26T17:10:35",
   "resolved_at": null
 }
 
@@ -238,14 +238,14 @@ Message: Fetched my SOS alerts.
 Status Code: 200
 Response JSON: [
   {
-    "user_id": 11,
-    "circle_id": 12,
+    "user_id": 15,
+    "circle_id": 14,
     "message": "Emergency in test circle!",
     "latitude": 10.0,
     "longitude": 20.0,
     "status": "resolved",
-    "id": 12,
-    "created_at": "2025-11-26T16:56:57",
+    "id": 14,
+    "created_at": "2025-11-26T17:10:35",
     "resolved_at": null
   }
 ]
@@ -258,26 +258,26 @@ No response received (connection error or unexpected issue).
 Message: Fetched notification by ID.
 Status Code: 200
 Response JSON: {
-  "user_id": 12,
+  "user_id": 16,
   "title": "SOS Alert from Friend",
   "message": "Your friend testuser1 has sent an SOS alert!",
   "type": "SOS_FRIEND",
   "is_read": false,
-  "id": 21,
-  "created_at": "2025-11-26T16:56:57"
+  "id": 27,
+  "created_at": "2025-11-26T17:10:35"
 }
 
 --- Update Notification (testuser1) ---
 Message: Notification updated.
 Status Code: 200
 Response JSON: {
-  "user_id": 12,
+  "user_id": 16,
   "title": "SOS Alert from Friend",
   "message": "Your friend testuser1 has sent an SOS alert!",
   "type": "SOS_FRIEND",
   "is_read": true,
-  "id": 21,
-  "created_at": "2025-11-26T16:56:57"
+  "id": 27,
+  "created_at": "2025-11-26T17:10:35"
 }
 
 --- Delete Notification (testuser1) ---
@@ -292,11 +292,6 @@ Response Text:
 
 --- Delete Circle (testuser1) ---
 Message: Circle deleted.
-Status Code: 204
-Response Text: 
-
---- Delete Friendship (testuser1 deletes testuser2) ---
-Message: Friendship deleted.
 Status Code: 204
 Response Text: 
 
@@ -332,11 +327,11 @@ Response JSON: {
   "message": "Successfully logged out"
 }
 
---- Cleanup: Delete User testuser2 (ID: 12) ---
+--- Cleanup: Delete User testuser2 (ID: 16) ---
 Status Code: 204
 Response Text: 
 
---- Cleanup: Delete User testuser1 (ID: 11) ---
+--- Cleanup: Delete User testuser1 (ID: 15) ---
 Status Code: 204
 Response Text: 
 

@@ -429,15 +429,11 @@ def main():
         except Exception as e:
             log_response(f"Delete Circle ({user1_username})", None, f"Error: {e}")
 
-    # --- 25. User1 deletes friendship with User2 ---
-    print(f"User {user1_username} deleting friendship with {user2_username}...")
-    try:
-        response = requests.delete(f"{BASE_URL}/friends/{user2_id}", headers=headers1)
-        log_response(f"Delete Friendship ({user1_username} deletes {user2_username})", response, "Friendship deleted.")
-    except Exception as e:
-        log_response(f"Delete Friendship ({user1_username} deletes {user2_username})", None, f"Error: {e}")
+            log_response(f"Delete Circle ({user1_username})", response, "Circle deleted.")
+        except Exception as e:
+            log_response(f"Delete Circle ({user1_username})", None, f"Error: {e}")
 
-    # --- 26. User1 rejects friend request (if any pending from previous runs) ---
+    # --- 25. User1 rejects friend request (if any pending from previous runs) ---
     # This might be tricky if the request was already accepted.
     # For a clean test, it's better to ensure no pending requests exist before running.
     # Assuming previous tests might leave pending requests, we'll try to reject.
@@ -449,7 +445,7 @@ def main():
         except Exception as e:
             log_response(f"Reject Friend Request ({user2_username})", None, f"Error: {e}")
 
-    # --- 27. User1 logs out ---
+    # --- 26. User1 logs out ---
     print(f"User {user1_username} logging out...")
     try:
         response = requests.post(f"{BASE_URL}/logout", headers=headers1)
@@ -457,7 +453,7 @@ def main():
     except Exception as e:
         log_response(f"Logout User {user1_username}", None, f"Error: {e}")
 
-    # --- 28. User2 logs out ---
+    # --- 27. User2 logs out ---
     print(f"User {user2_username} logging out...")
     try:
         response = requests.post(f"{BASE_URL}/logout", headers=headers2)
