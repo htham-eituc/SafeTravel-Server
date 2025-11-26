@@ -44,3 +44,7 @@ class IFriendRepository(ABC):
     @abstractmethod
     def get_user_by_username(self, db: Session, username: str) -> Optional[UserEntity]:
         pass
+
+    @abstractmethod
+    def delete_friendship_by_user_and_friend_id(self, db: Session, user_id: int, friend_id: int) -> bool:
+        pass

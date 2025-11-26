@@ -69,3 +69,12 @@ class FriendUseCases:
 
     def get_friends_by_user_id(self, db: Session, user_id: int) -> List[UserEntity]:
         return self.friend_repository.get_friends_by_user_id(db, user_id)
+
+    def delete_friendship(self, db: Session, user_id: int, friend_id: int) -> bool:
+        # First, check if the friendship exists and belongs to the user
+        friendship = self.friend_repository.get_friendship(db, user_id, friend_id)
+        if not friendship:
+            raise ValueError("Friendship not found.")
+        
+        # Delete the friendship
+        return self.friend_repository.delete_friendship_by_user_and_friend_id(db, user_id, friend_id)

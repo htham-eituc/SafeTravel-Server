@@ -21,7 +21,7 @@ class AdminLogRepository(IAdminLogRepository):
         db_admin_log = AdminLog(
             admin_id=admin_log_data.admin_id,
             action=admin_log_data.action,
-            timestamp=admin_log_data.timestamp
+            target_id=admin_log_data.target_id
         )
         db.add(db_admin_log)
         db.commit()

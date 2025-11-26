@@ -66,3 +66,18 @@ def get_friends(
     db: Session = Depends(get_db)
 ):
     return friend_use_cases.get_friends_by_user_id(db, current_user.id)
+
+@router.delete("/friends/{friend_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_friend(
+    friend_id: int,
+    current_user: UserEntity = Depends(get_current_user),
+    friend_use_cases: FriendUseCases = Depends(get_friend_use_cases),
+    db: Session = Depends(get_db)
+):
+    try:
+        if not friend_use_cases.delete_friendship(db, current_user.id, friend_id):
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Friendship not found.")
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))

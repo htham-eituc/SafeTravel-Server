@@ -56,3 +56,7 @@ class CircleUseCases:
 
     def delete_circle(self, db: Session, circle_id: int) -> bool:
         return self.circle_repo.delete_circle(db, circle_id)
+
+    def is_user_in_circle(self, db: Session, circle_id: int, user_id: int) -> bool:
+        circle_members = self.circle_member_repo.get_circle_members_by_circle(db, circle_id)
+        return any(member.member_id == user_id for member in circle_members)
