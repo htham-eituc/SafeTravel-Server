@@ -172,27 +172,25 @@ async def remove_member_from_circle(
     if not circle_member_use_cases.delete_circle_member(db, member_to_delete.id):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to delete member from circle")
 
+# ... import traceback
+
 @router.get("/circles/{circle_id}/members", response_model=List[UserDTO])
 async def get_circle_members(
     circle_id: int,
     current_user: Annotated[UserEntity, Depends(get_current_user)],
     db: Session = Depends(get_db_session),
-    circle_use_cases: CircleUseCases = Depends(get_circle_use_cases)
+    circle_use_cases: CircleUseCases = Depends(get_circle_use_cases) 
 ):
-    """
-    Get all members of a specific circle.
-    Only the owner or a member of the circle can view the members.
-    """
     existing_circle = circle_use_cases.get_circle(db, circle_id)
     if not existing_circle:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Circle not found")
     
-    # Check if current user is owner or a member
     is_owner = existing_circle.owner_id == current_user.id
     is_member = circle_use_cases.is_user_in_circle(db, circle_id, current_user.id)
     
     if not (is_owner or is_member):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to view members of this circle")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
+
+    users = circle_use_cases.get_circle_members_as_users(db, circle_id)
     
-    members = circle_use_cases.get_circle_members(db, circle_id)
-    return [UserDTO.from_orm(member) for member in members]
+    return [UserDTO.from_orm(user) for user in users]

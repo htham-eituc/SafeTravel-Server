@@ -8,8 +8,12 @@ class ICircleMemberRepository(ABC):
     def get_circle_member(self, db: Session, circle_member_id: int) -> Optional[CircleMemberEntity]:
         pass
 
+    # @abstractmethod
+    # def get_circle_members_by_circle(self, db: Session, circle_id: int) -> List[CircleMemberEntity]:
+    #     pass
+
     @abstractmethod
-    def get_circle_members_by_circle(self, db: Session, circle_id: int) -> List[CircleMemberEntity]:
+    def get_circle_members_as_users(self, db: Session, circle_id: int):
         pass
 
     @abstractmethod
