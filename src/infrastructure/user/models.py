@@ -26,3 +26,4 @@ class User(Base):
     received_friend_requests = relationship("FriendRequest", foreign_keys="[FriendRequest.receiver_id]", back_populates="receiver")
     friendships_as_user = relationship("Friendship", foreign_keys="[Friendship.user_id]", back_populates="user")
     friendships_as_friend = relationship("Friendship", foreign_keys="[Friendship.friend_id]", back_populates="friend")
+    trips = relationship("Trip", back_populates="user")
