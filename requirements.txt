@@ -9,3 +9,5 @@ requests==2.31.0
 pydantic==2.5.2
 pydantic-settings==2.1.0
 bcrypt==4.1.2
+httpx
+google-genai=1.4.0

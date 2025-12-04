@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: str
     GEMINI_MODEL: str = "gemini-2.5-flash"
 
+    # Geoapify
+    GEOAPIFY_KEY: str
+
     # Logging
     LOG_LEVEL: str = "INFO" # Thêm cấu hình cấp độ log
 
