@@ -2,6 +2,7 @@ from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordBearer
 
+from src.application.trip.use_cases import TripUseCases
 from src.application.security.security_interfaces import IPasswordHasher, ITokenService
 from src.application.user.auth_use_cases import (
     LoginUserUseCase,
@@ -165,3 +166,18 @@ async def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
     return user
+
+def get_trip_repository_impl(db: Session = Depends(get_db_session)):
+    from src.infrastructure.trip.repository_impl import TripRepository
+    return TripRepository()
+
+def get_trip_use_cases(
+    trip_repo = Depends(get_trip_repository_impl)
+):
+    from src.application.trip.use_cases import TripUseCases
+    return TripUseCases(trip_repo)
+
+def provide_trip_use_cases(
+    trip_use_cases: TripUseCases = Depends(get_trip_use_cases)
+) -> TripUseCases:
+    return trip_use_cases
