@@ -3,7 +3,7 @@ from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from src.infrastructure.database.sql.database import Base
 
-class Trip:
+class Trip(Base):
     __tablename__ = "trips"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -17,4 +17,5 @@ class Trip:
     notes = Column(String(500), nullable=True)
     created_at = Column(DateTime, server_default=func.now())
 
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     user = relationship("User", back_populates="trips")

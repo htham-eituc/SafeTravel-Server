@@ -6,10 +6,11 @@ class Trip(BaseModel):
     id: Optional[int] = None
     user_id: int
     tripname: str
-    place: str
+    destination: str 
     start_date: datetime
     end_date: datetime
-    trip_type: str  # change to enum later
+    trip_type: str
     have_elderly: bool = False
     have_children: bool = False
+    notes: Optional[str] = None
     created_at: Optional[datetime] = None
