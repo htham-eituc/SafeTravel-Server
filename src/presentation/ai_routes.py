@@ -59,7 +59,7 @@ config_search = types.GenerateContentConfig(
 
 config_json = types.GenerateContentConfig(
     response_mime_type="application/json",
-    response_json_schema=VietnamReport.model_json_schema(),
+    response_schema=VietnamReport,
     temperature=0.1
 )
 

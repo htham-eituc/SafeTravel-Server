@@ -7,4 +7,6 @@ from .notification import models as notification_models
 from .admin_log import models as admin_log_models
 from .friend import models as friend_models
 from .sos_alert import models as sos_alert_models # Added missing import for SOSAlert
+from .trip import models as trip_models
+
 # Add other model imports as needed

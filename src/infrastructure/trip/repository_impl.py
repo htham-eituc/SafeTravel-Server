@@ -18,13 +18,14 @@ class TripRepository(ITripRepository):
     def create_trip(self, db: Session, trip_data: TripEntity) -> TripEntity:
         db_trip = Trip(
             tripname=trip_data.tripname,
-            place=trip_data.place,
+            destination=trip_data.destination, # Sửa place -> destination
             start_date=trip_data.start_date,
             end_date=trip_data.end_date,
             trip_type=trip_data.trip_type,
             have_elderly=trip_data.have_elderly,
             have_children=trip_data.have_children,
-            user_id=trip_data.user_id
+            user_id=trip_data.user_id,
+            notes=trip_data.notes # Thêm notes
         )
         db.add(db_trip)
         db.commit()
@@ -34,8 +35,11 @@ class TripRepository(ITripRepository):
     def update_trip(self, db: Session, trip_id: int, trip_data: TripEntity) -> Optional[TripEntity]:
         db_trip = db.query(Trip).filter(Trip.id == trip_id).first()
         if db_trip:
-            for key, value in trip_data.model_dump(exclude_unset=True).items():
-                setattr(db_trip, key, value)
+            # Loại bỏ các trường None hoặc không muốn update
+            update_dict = trip_data.model_dump(exclude_unset=True)
+            for key, value in update_dict.items():
+                if hasattr(db_trip, key):
+                    setattr(db_trip, key, value)
             db.commit()
             db.refresh(db_trip)
             return TripEntity.model_validate(db_trip.__dict__)

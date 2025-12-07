@@ -19,10 +19,13 @@ class TripUseCases:
         trip_entity = TripEntity(
             user_id=trip_data.user_id,
             tripname=trip_data.tripname,
-            destination=trip_data.destination,
+            destination=trip_data.destination, # Khớp với Entity
             start_date=trip_data.start_date,
             end_date=trip_data.end_date,
-            notes=trip_data.notes
+            notes=trip_data.notes,
+            trip_type=trip_data.trip_type,     # Thêm trường này
+            have_elderly=trip_data.have_elderly, # Thêm trường này
+            have_children=trip_data.have_children # Thêm trường này
         )
         return self.trip_repo.create_trip(db, trip_entity)
     
@@ -36,6 +39,9 @@ class TripUseCases:
             destination=trip_data.destination,
             start_date=trip_data.start_date,
             end_date=trip_data.end_date,
-            notes=trip_data.notes
+            notes=trip_data.notes,
+            trip_type=trip_data.trip_type,
+            have_elderly=trip_data.have_elderly,
+            have_children=trip_data.have_children
         )
         return self.trip_repo.update_trip(db, trip_id, trip_entity)
