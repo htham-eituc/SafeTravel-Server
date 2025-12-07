@@ -4,6 +4,8 @@ from typing import Optional
 
 class TripBase(BaseModel):
     user_id: int
+    # Optional circle association
+    circle_id: Optional[int] = None
     tripname: str
     destination: str
     start_date: datetime
@@ -15,6 +17,7 @@ class TripBase(BaseModel):
 
 class TripDTO(TripBase):
     id: int
+    circle_id: Optional[int] = None
     created_at: datetime
 
     class Config:

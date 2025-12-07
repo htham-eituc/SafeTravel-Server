@@ -5,6 +5,8 @@ from datetime import datetime
 class Trip(BaseModel):
     id: Optional[int] = None
     user_id: int
+    # Optional link to a circle the trip belongs to
+    circle_id: Optional[int] = None
     tripname: str
     destination: str 
     start_date: datetime

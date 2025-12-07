@@ -18,6 +18,7 @@ class TripUseCases:
     def create_trip(self, db: Session, trip_data: TripBase) -> TripEntity:
         trip_entity = TripEntity(
             user_id=trip_data.user_id,
+            circle_id=trip_data.circle_id,
             tripname=trip_data.tripname,
             destination=trip_data.destination, # Khớp với Entity
             start_date=trip_data.start_date,
@@ -35,6 +36,7 @@ class TripUseCases:
     def update_trip(self, db: Session, trip_id: int, trip_data: TripBase) -> Optional[TripEntity]:
         trip_entity = TripEntity(
             user_id=trip_data.user_id,
+            circle_id=trip_data.circle_id,
             tripname=trip_data.tripname,
             destination=trip_data.destination,
             start_date=trip_data.start_date,

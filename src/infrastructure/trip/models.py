@@ -16,6 +16,9 @@ class Trip(Base):
     have_children = Column(Boolean, default=False)
     notes = Column(String(500), nullable=True)
     created_at = Column(DateTime, server_default=func.now())
-
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     user = relationship("User", back_populates="trips")
+
+    # Association to Circle (optional)
+    circle_id = Column(Integer, ForeignKey("circles.id"), nullable=True)
+    circle = relationship("Circle", back_populates="trips")
