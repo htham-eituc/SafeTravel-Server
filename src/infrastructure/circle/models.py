@@ -16,3 +16,5 @@ class Circle(Base):
     owner = relationship("User", back_populates="circles")
     members = relationship("CircleMember", back_populates="circle")
     sos_alerts = relationship("SOSAlert", back_populates="circle")
+    # Trips belonging to this circle
+    trips = relationship("Trip", back_populates="circle")

@@ -25,7 +25,8 @@ class TripRepository(ITripRepository):
             have_elderly=trip_data.have_elderly,
             have_children=trip_data.have_children,
             user_id=trip_data.user_id,
-            notes=trip_data.notes # Thêm notes
+            notes=trip_data.notes, # Thêm notes
+            circle_id=trip_data.circle_id
         )
         db.add(db_trip)
         db.commit()
