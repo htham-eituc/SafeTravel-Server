@@ -23,3 +23,7 @@ class ICircleRepository(ABC):
     @abstractmethod
     def delete_circle(self, db: Session, circle_id: int) -> bool:
         pass
+
+    @abstractmethod
+    def get_active_circle_by_owner_id(self, db: Session, owner_id: int) -> Optional[CircleEntity]:
+        pass

@@ -113,7 +113,9 @@ async def update_sos_alert_status(
             for friend in friends:
                 notification_data = NotificationCreate(
                     user_id=friend.id,
+                    title="SOS Alert Resolved",
                     message=f"Your friend {current_user.username}'s SOS alert has been resolved.",
+                    type="SOS_RESOLVED",
                     is_read=False
                 )
                 notification_use_case.create_notification(db, notification_data)

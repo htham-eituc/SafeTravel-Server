@@ -2,6 +2,7 @@ from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordBearer
 
+from src.application.trip.use_cases import TripUseCases
 from src.application.security.security_interfaces import IPasswordHasher, ITokenService
 from src.application.user.auth_use_cases import (
     LoginUserUseCase,
@@ -23,6 +24,9 @@ from src.application.sos_alert.use_cases import SOSAlertUseCases # Import SOSAle
 from src.domain.notification.repository_interface import INotificationRepository
 from src.infrastructure.notification.repository_impl import NotificationRepository
 from src.application.notification.use_cases import NotificationUseCases
+from src.domain.admin_log.repository_interface import IAdminLogRepository
+from src.infrastructure.admin_log.repository_impl import AdminLogRepository
+from src.application.admin_log.use_cases import AdminLogUseCases
 from src.domain.circle.repository_interface import ICircleRepository # Import ICircleRepository
 from src.infrastructure.circle.repository_impl import CircleRepository # Import CircleRepository
 from src.domain.circle.member_repository_interface import ICircleMemberRepository # Import ICircleMemberRepository
@@ -46,11 +50,6 @@ def get_friend_use_cases(
 def get_sos_alert_repository_impl(db: Session = Depends(get_db_session)) -> SOSAlertRepository:
     return SOSAlertRepository()
 
-def get_sos_alert_use_cases(
-    sos_alert_repo: ISOSAlertRepository = Depends(get_sos_alert_repository_impl)
-) -> SOSAlertUseCases:
-    return SOSAlertUseCases(sos_alert_repo)
-
 def get_notification_repository_impl(db: Session = Depends(get_db_session)) -> NotificationRepository:
     return NotificationRepository()
 
@@ -58,6 +57,14 @@ def get_notification_use_cases(
     notification_repo: INotificationRepository = Depends(get_notification_repository_impl)
 ) -> NotificationUseCases:
     return NotificationUseCases(notification_repo)
+
+def get_admin_log_repository_impl(db: Session = Depends(get_db_session)) -> AdminLogRepository:
+    return AdminLogRepository()
+
+def get_admin_log_use_cases(
+    admin_log_repo: IAdminLogRepository = Depends(get_admin_log_repository_impl)
+) -> AdminLogUseCases:
+    return AdminLogUseCases(admin_log_repo)
 
 def get_password_hasher_impl() -> BcryptPasswordHasher:
     return BcryptPasswordHasher()
@@ -106,11 +113,35 @@ def get_circle_repository_impl(db: Session = Depends(get_db_session)) -> CircleR
 def get_circle_member_repository_impl(db: Session = Depends(get_db_session)) -> CircleMemberRepository:
     return CircleMemberRepository()
 
+from src.application.circle.member_use_cases import CircleMemberUseCases # Import CircleMemberUseCases
+
 def get_circle_use_cases(
     circle_repo: ICircleRepository = Depends(get_circle_repository_impl),
     circle_member_repo: ICircleMemberRepository = Depends(get_circle_member_repository_impl)
 ) -> CircleUseCases:
     return CircleUseCases(circle_repo, circle_member_repo)
+
+def get_circle_member_use_cases(
+    circle_member_repo: ICircleMemberRepository = Depends(get_circle_member_repository_impl)
+) -> CircleMemberUseCases:
+    return CircleMemberUseCases(circle_member_repo)
+
+def get_sos_alert_use_cases(
+    sos_alert_repo: ISOSAlertRepository = Depends(get_sos_alert_repository_impl),
+    notification_use_cases: NotificationUseCases = Depends(get_notification_use_cases),
+    user_repository: IUserRepository = Depends(provide_user_repository),
+    friend_repository: IFriendRepository = Depends(get_friend_repository_impl),
+    circle_repository: ICircleRepository = Depends(get_circle_repository_impl),
+    circle_member_repository: ICircleMemberRepository = Depends(get_circle_member_repository_impl)
+) -> SOSAlertUseCases:
+    return SOSAlertUseCases(
+        sos_alert_repo,
+        notification_use_cases,
+        user_repository,
+        friend_repository,
+        circle_repository,
+        circle_member_repository
+    )
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/login")
 
@@ -135,3 +166,18 @@ async def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
     return user
+
+def get_trip_repository_impl(db: Session = Depends(get_db_session)):
+    from src.infrastructure.trip.repository_impl import TripRepository
+    return TripRepository()
+
+def get_trip_use_cases(
+    trip_repo = Depends(get_trip_repository_impl)
+):
+    from src.application.trip.use_cases import TripUseCases
+    return TripUseCases(trip_repo)
+
+def provide_trip_use_cases(
+    trip_use_cases: TripUseCases = Depends(get_trip_use_cases)
+) -> TripUseCases:
+    return trip_use_cases

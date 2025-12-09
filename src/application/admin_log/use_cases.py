@@ -20,7 +20,7 @@ class AdminLogUseCases:
         admin_log_entity = AdminLogEntity(
             admin_id=admin_log_data.admin_id,
             action=admin_log_data.action,
-            timestamp=datetime.now() # Assuming timestamp is set at creation
+            target_id=admin_log_data.target_id # Added target_id
         )
         return self.admin_log_repository.create_admin_log(db, admin_log_entity)
 

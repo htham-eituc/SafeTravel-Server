@@ -73,6 +73,17 @@ class FriendRepository(IFriendRepository):
             return FriendshipEntity.model_validate(db_friendship.__dict__)
         return None
 
+    def delete_friendship_by_user_and_friend_id(self, db: Session, user_id: int, friend_id: int) -> bool:
+        db_friendship = db.query(Friendship).filter(
+            ((Friendship.user_id == user_id) & (Friendship.friend_id == friend_id)) |
+            ((Friendship.user_id == friend_id) & (Friendship.friend_id == user_id))
+        ).first()
+        if db_friendship:
+            db.delete(db_friendship)
+            db.commit()
+            return True
+        return False
+
     def get_friends_by_user_id(self, db: Session, user_id: int) -> List[UserEntity]:
         friends_as_user = db.query(UserModel).join(Friendship, UserModel.id == Friendship.friend_id).filter(Friendship.user_id == user_id).all()
         friends_as_friend = db.query(UserModel).join(Friendship, UserModel.id == Friendship.user_id).filter(Friendship.friend_id == user_id).all()

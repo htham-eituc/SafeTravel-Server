@@ -20,6 +20,15 @@ from src.domain.user.entities import User as UserEntity
 
 router = APIRouter()
 
+@router.get("/users/me", response_model=UserDTO)
+async def read_users_me(
+    current_user: Annotated[UserEntity, Depends(get_current_user)]
+):
+    """
+    Get the current authenticated user's information.
+    """
+    return UserDTO.from_orm(current_user)
+
 @router.post("/register", response_model=UserDTO, status_code=status.HTTP_201_CREATED)
 async def register(
     user_data: UserRegisterDTO,

@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from src.infrastructure.circle.member_models import CircleMember
+from src.infrastructure.user.models import User
 from src.domain.circle.member_repository_interface import ICircleMemberRepository
 from src.domain.circle.member_entities import CircleMember as CircleMemberEntity
 from src.application.circle.member_dto import CircleMemberCreate, CircleMemberUpdate
@@ -16,6 +17,13 @@ class CircleMemberRepository(ICircleMemberRepository):
     def get_circle_members_by_circle(self, db: Session, circle_id: int) -> List[CircleMemberEntity]:
         db_circle_members = db.query(CircleMember).filter(CircleMember.circle_id == circle_id).all()
         return [CircleMemberEntity.model_validate(cm.__dict__) for cm in db_circle_members]
+    
+    def get_circle_members_as_users(self, db: Session, circle_id: int):
+        users = db.query(User)\
+                  .join(CircleMember, CircleMember.member_id == User.id)\
+                  .filter(CircleMember.circle_id == circle_id)\
+                  .all()
+        return users
 
     def get_circle_members_by_member(self, db: Session, member_id: int) -> List[CircleMemberEntity]:
         db_circle_members = db.query(CircleMember).filter(CircleMember.member_id == member_id).all()
