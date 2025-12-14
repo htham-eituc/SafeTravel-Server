@@ -8,5 +8,7 @@ from .admin_log import models as admin_log_models
 from .friend import models as friend_models
 from .sos_alert import models as sos_alert_models # Added missing import for SOSAlert
 from .trip import models as trip_models
+from .news_incident import models as news_incident_models
+from .user_report_incident import models as user_report_incident_models
 
 # Add other model imports as needed

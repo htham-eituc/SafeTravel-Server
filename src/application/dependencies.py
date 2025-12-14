@@ -32,6 +32,12 @@ from src.infrastructure.circle.repository_impl import CircleRepository # Import 
 from src.domain.circle.member_repository_interface import ICircleMemberRepository # Import ICircleMemberRepository
 from src.infrastructure.circle.member_repository_impl import CircleMemberRepository # Import CircleMemberRepository
 from src.application.circle.use_cases import CircleUseCases # Import CircleUseCases
+from src.domain.news_incident.repository_interface import INewsIncidentRepository
+from src.infrastructure.news_incident.repository_impl import NewsIncidentRepository
+from src.application.news_incident.use_cases import NewsIncidentUseCases
+from src.domain.user_report_incident.repository_interface import IUserReportIncidentRepository
+from src.infrastructure.user_report_incident.repository_impl import UserReportIncidentRepository
+from src.application.user_report_incident.use_cases import UserReportIncidentUseCases
 
 def get_db_session() -> Session:
     yield from get_db()
@@ -142,6 +148,22 @@ def get_sos_alert_use_cases(
         circle_repository,
         circle_member_repository
     )
+
+def get_news_incident_repository_impl(db: Session = Depends(get_db_session)) -> NewsIncidentRepository:
+    return NewsIncidentRepository()
+
+def get_news_incident_use_cases(
+    repo: INewsIncidentRepository = Depends(get_news_incident_repository_impl)
+) -> NewsIncidentUseCases:
+    return NewsIncidentUseCases(repo)
+
+def get_user_report_incident_repository_impl(db: Session = Depends(get_db_session)) -> UserReportIncidentRepository:
+    return UserReportIncidentRepository()
+
+def get_user_report_incident_use_cases(
+    repo: IUserReportIncidentRepository = Depends(get_user_report_incident_repository_impl)
+) -> UserReportIncidentUseCases:
+    return UserReportIncidentUseCases(repo)
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/login")
 
