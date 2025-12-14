@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from typing import List, Annotated
 from sqlalchemy.orm import Session
 from src.application.dependencies import (
@@ -9,7 +9,12 @@ from src.application.dependencies import (
     get_notification_use_cases, # Changed from provide_notification_use_case
     get_circle_use_cases # Changed from provide_circle_use_cases
 )
-from src.application.sos_alert.dto import SOSAlertCreate, SOSAlertUpdate, SOSAlertInDB
+from src.application.sos_alert.dto import (
+    SOSAlertCreate,
+    SOSAlertUpdate,
+    SOSAlertInDB,
+    SOSIncidentResponse
+)
 from src.application.sos_alert.use_cases import SOSAlertUseCases # Changed from SOSService
 from src.application.friend.use_cases import FriendUseCases
 from src.application.notification.use_cases import NotificationUseCases
@@ -139,6 +144,40 @@ async def get_my_sos_alerts(
     try:
         alerts = sos_alert_use_cases.get_sos_alerts_by_user(db, current_user.id) # Changed method call
         return alerts
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An error occurred: {str(e)}"
+        )
+
+@router.get("/sos/incidents", response_model=List[SOSIncidentResponse])
+async def get_incident_alerts_for_map(
+    current_user: Annotated[UserEntity, Depends(get_current_user)],
+    latitude: float = Query(..., description="Latitude of the point on the map"),
+    longitude: float = Query(..., description="Longitude of the point on the map"),
+    radius: float = Query(0.5, gt=0, description="Radius (in degrees) used for proximity search"),
+    db: Session = Depends(get_db_session),
+    sos_alert_use_cases: SOSAlertUseCases = Depends(get_sos_alert_use_cases)
+):
+    """
+    Get incidents to display on the map. Includes SOS alerts from the user's friends
+    or members of active circles the user belongs to, plus alerts within the provided
+    radius of the supplied coordinates.
+    """
+    try:
+        incidents = sos_alert_use_cases.get_incidents_for_map(
+            db,
+            current_user.id,
+            latitude,
+            longitude,
+            radius
+        )
+        return incidents
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
