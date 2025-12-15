@@ -11,6 +11,18 @@ from src.application.sos_alert.dto import (
 from src.domain.sos_alert.entities import SOSAlert as SOSAlertEntity
 from datetime import datetime
 
+MAX_SOS_MESSAGE_LEN = 255
+
+
+def _truncate_message(message: str | None) -> str | None:
+    if message is None:
+        return None
+    message = message.strip()
+    if len(message) <= MAX_SOS_MESSAGE_LEN:
+        return message
+    return message[: MAX_SOS_MESSAGE_LEN - 1].rstrip() + "…"
+
+
 from src.application.notification.use_cases import NotificationUseCases
 from src.application.notification.dto import NotificationCreate
 from src.domain.user.repository_interface import IUserRepository
@@ -137,7 +149,7 @@ class SOSAlertUseCases:
         sos_alert_entity = SOSAlertEntity(
             user_id=sos_alert_data.user_id,
             circle_id=sos_alert_data.circle_id,
-            message=sos_alert_data.message,
+            message=_truncate_message(sos_alert_data.message),
             latitude=sos_alert_data.latitude,
             longitude=sos_alert_data.longitude,
             status=sos_alert_data.status,
@@ -186,6 +198,8 @@ class SOSAlertUseCases:
             return None
         
         update_data = sos_alert_update.model_dump(exclude_unset=True)
+        if "message" in update_data:
+            update_data["message"] = _truncate_message(update_data["message"])
         updated_alert_entity = existing_alert.model_copy(update=update_data)
         return self.sos_alert_repo.update_sos_alert(db, sos_alert_id, updated_alert_entity)
 

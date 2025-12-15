@@ -8,7 +8,6 @@ from src.application.dependencies import (
     get_friend_use_cases, # Changed from provide_friend_use_case
     get_notification_use_cases, # Changed from provide_notification_use_case
     get_circle_use_cases, # Changed from provide_circle_use_cases
-    get_news_incident_use_cases,
     get_user_report_incident_use_cases
 )
 from src.application.sos_alert.dto import (
@@ -19,7 +18,6 @@ from src.application.sos_alert.dto import (
 )
 from src.application.incident.dto import MapIncidentsResponse
 from src.application.sos_alert.use_cases import SOSAlertUseCases # Changed from SOSService
-from src.application.news_incident.use_cases import NewsIncidentUseCases
 from src.application.user_report_incident.use_cases import UserReportIncidentUseCases
 from src.application.user_report_incident.dto import UserReportIncidentCreate, UserReportIncidentInDB
 from src.application.friend.use_cases import FriendUseCases
@@ -156,8 +154,8 @@ async def get_my_sos_alerts(
             detail=f"An error occurred: {str(e)}"
         )
 
-@router.get("/sos/incidents", response_model=List[SOSIncidentResponse])
-async def get_incident_alerts_for_map(
+@router.get("/incidents", response_model=MapIncidentsResponse)
+async def get_incidents_for_map(
     current_user: Annotated[UserEntity, Depends(get_current_user)],
     latitude: float = Query(..., description="Latitude of the point on the map"),
     longitude: float = Query(..., description="Longitude of the point on the map"),
@@ -166,51 +164,14 @@ async def get_incident_alerts_for_map(
     sos_alert_use_cases: SOSAlertUseCases = Depends(get_sos_alert_use_cases)
 ):
     """
-    Get incidents to display on the map. Includes SOS alerts from the user's friends
-    or members of active circles the user belongs to, plus alerts within the provided
-    radius of the supplied coordinates.
-    """
-    try:
-        incidents = sos_alert_use_cases.get_incidents_for_map(
-            db,
-            current_user.id,
-            latitude,
-            longitude,
-            radius
-        )
-        return incidents
-    except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
-        )
-
-@router.get("/incidents", response_model=MapIncidentsResponse)
-async def get_map_incidents(
-    current_user: Annotated[UserEntity, Depends(get_current_user)],
-    latitude: float = Query(..., description="Latitude of the point on the map"),
-    longitude: float = Query(..., description="Longitude of the point on the map"),
-    radius: float = Query(0.5, gt=0, description="Radius (in degrees) used for proximity search"),
-    db: Session = Depends(get_db_session),
-    sos_alert_use_cases: SOSAlertUseCases = Depends(get_sos_alert_use_cases),
-    news_incident_use_cases: NewsIncidentUseCases = Depends(get_news_incident_use_cases),
-    user_report_incident_use_cases: UserReportIncidentUseCases = Depends(get_user_report_incident_use_cases),
-):
-    """
-    Get map incidents combining:
+    Get map incidents (P0/P1 only):
     - P0: SOS from friends/circles (highest priority)
     - P1: SOS from nearby strangers (radius-based)
-    - P2: News-based negative incidents (crime/disaster/etc) stored in DB
+
+    News-based P2 incidents are intentionally excluded.
     """
     try:
         sos = sos_alert_use_cases.get_incidents_for_map(db, current_user.id, latitude, longitude, radius)
-        news = news_incident_use_cases.get_news_incidents_within_radius(db, latitude, longitude, radius)
-        reports = user_report_incident_use_cases.get_reports_within_radius(db, latitude, longitude, radius)
 
         def is_friend_signal(item: SOSIncidentResponse) -> bool:
             friend_sources = {"friend", "circle", "friend_or_circle"}
@@ -222,8 +183,6 @@ async def get_map_incidents(
         return MapIncidentsResponse(
             p0_sos_friends=p0_sos,
             p1_sos_nearby_strangers=p1_sos,
-            p1_user_reports=reports,
-            p2_news_warnings=news
         )
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))

@@ -210,3 +210,7 @@ __marimo__/
 
 # Local scripts (do not commit)
 /test.py
+
+# Local news incident collector (kept out of git)
+tools/fetch_hcm_news_incidents.py
+generated/

@@ -16,6 +16,7 @@ This project provides the backend API for the SafeTravel application, built with
     - [4. Database Setup](#4-database-setup)
     - [5. Environment Variables](#5-environment-variables)
     - [6. Run the Application](#6-run-the-application)
+  - [Local Tools](#local-tools)
   - [API Documentation and Testing](#api-documentation-and-testing)
   - [API Endpoints](#api-endpoints)
     - [Authentication Endpoints](#authentication-endpoints)
@@ -47,7 +48,7 @@ This project provides the backend API for the SafeTravel application, built with
       - [Update SOS Alert Status](#update-sos-alert-status)
       - [Get My SOS Alerts](#get-my-sos-alerts)
     - [Map Incidents Endpoints](#map-incidents-endpoints)
-      - [Get Map Incidents (P0/P1/P2)](#get-map-incidents-p0p1p2)
+      - [Get Map Incidents (P0/P1)](#get-map-incidents-p0p1)
       - [Report Incident Warning (P1)](#report-incident-warning-p1)
     - [News Incident Endpoints](#news-incident-endpoints)
       - [Extract News Incidents (AI + Geocoding)](#extract-news-incidents-ai--geocoding)
@@ -85,9 +86,9 @@ This project provides the backend API for the SafeTravel application, built with
 - **Location Tracking:** (Conceptual) Infrastructure for real-time location updates.
 - **Notifications:** (Conceptual) System for sending alerts and updates.
 - **SOS Alerts:** (Conceptual) Mechanism for users to send emergency alerts to their circles.
-- **Map Incidents Feed:** Unified `GET /api/incidents` feed grouped into P0/P1/P2 for map rendering.
+- **Map Incidents Feed:** Unified `GET /api/incidents` feed grouped into P0/P1 for map rendering.
 - **User-Reported Warnings:** Users can report on-map warnings via `POST /api/incidents/report` (P1).
-- **News-Based Warnings:** Extract negative incidents from news sources, geocode them to lat/long, store and query by radius (P2).
+- **News Incidents:** Extract negative incidents from news sources, geocode them to lat/long, store and query by radius (separate endpoints).
 - **Admin Logging:** (Conceptual) System for tracking administrative actions.
 - **Google Gemini AI Integration:** For potential future AI-powered features.
 - **Mock Database Test:** Automatically populates initial data for development and testing.
@@ -194,6 +195,31 @@ python -m uvicorn run:app --reload
 ```
 
 The server will typically run on `http://127.0.0.1:8000`. The `--reload` flag enables automatic server restarts on code changes, which is useful for development.
+
+## Local Tools
+
+### Auto-post TP.HCM news as SOS (dev)
+
+This helper script fetches incident-like news for TP.HCM, geocodes a coarse location, then automatically registers/logs in a user, ensures an active circle exists, and posts the items as SOS alerts.
+
+- **File:** `tools/fetch_hcm_news_incidents.py` (intentionally ignored by git)
+- **Cache/output:** `generated/geocode_cache.json` (ignored by git)
+- **Requires:** Internet access (RSS + Nominatim geocoding)
+
+Run:
+
+```bash
+# 1) Start the server
+python -m uvicorn run:app --reload
+
+# 2) In another terminal, post 50 SOS items
+python3 tools/fetch_hcm_news_incidents.py --server http://127.0.0.1:8000 --count 50
+
+# Optional
+# python3 tools/fetch_hcm_news_incidents.py --dry-run
+# python3 tools/fetch_hcm_news_incidents.py --username bot_hcm --password 'StrongPass123'
+```
+
 
 ## API Documentation and Testing
 
@@ -685,9 +711,9 @@ All SOS alert endpoints require authentication.
 
 All map-incident endpoints require authentication.
 
-#### Get Map Incidents (P0/P1/P2)
+#### Get Map Incidents (P0/P1)
 
-This endpoint is designed for map rendering: it returns incidents grouped by priority/source.
+This endpoint is designed for map rendering: it returns SOS incidents grouped by priority/source.
 
 -   **Method:** `GET`
 -   **URL:** `http://127.0.0.1:8000/api/incidents?latitude=10.782&longitude=106.693&radius=0.5`
@@ -700,43 +726,18 @@ This endpoint is designed for map rendering: it returns incidents grouped by pri
 -   **Response:** `200 OK`
     ```json
     {
-      "p0_sos_friends": [
-        {
-          "alert": {
-            "user_id": 2,
-            "circle_id": 1,
-            "message": "Help!",
-            "latitude": 10.782,
-            "longitude": 106.693,
-            "status": "pending",
-            "id": 10,
-            "created_at": "2025-12-14T10:30:00.000000",
-            "resolved_at": null
-          },
-          "user": {
-            "id": 2,
-            "username": "friend_user",
-            "full_name": "Friend User",
-            "avatar_url": null
-          },
-          "sources": ["friend"]
-        }
-      ],
-      "p1_sos_nearby_strangers": [],
-      "p1_user_reports": [],
-      "p2_news_warnings": []
+      "p0_sos_friends": [],
+      "p1_sos_nearby_strangers": []
     }
     ```
 
 **Meaning**
 -   `p0_sos_friends`: SOS from friends/circle members (highest priority).
 -   `p1_sos_nearby_strangers`: SOS from non-friends within radius.
--   `p1_user_reports`: user-submitted warnings within radius.
--   `p2_news_warnings`: negative incidents extracted from news sources and stored in DB.
 
 #### Report Incident Warning (P1)
 
-Users can report an on-map warning. It will appear in `p1_user_reports` when querying `GET /api/incidents`.
+Users can report an on-map warning (user-submitted incident record).
 
 -   **Method:** `POST`
 -   **URL:** `http://127.0.0.1:8000/api/incidents/report`
