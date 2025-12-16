@@ -10,6 +10,7 @@ This project provides the backend API for the SafeTravel application, built with
   - [Technologies Used](#technologies-used)
   - [Prerequisites](#prerequisites)
   - [Setup Instructions](#setup-instructions)
+    - [0. Quick Start (Development)](#0-quick-start-development)
     - [1. Clone the Repository](#1-clone-the-repository)
     - [2. Create and Activate a Virtual Environment](#2-create-and-activate-a-virtual-environment)
     - [3. Install Dependencies](#3-install-dependencies)
@@ -17,6 +18,7 @@ This project provides the backend API for the SafeTravel application, built with
     - [5. Environment Variables](#5-environment-variables)
     - [6. Run the Application](#6-run-the-application)
   - [Local Tools](#local-tools)
+  - [Project Docs](#project-docs)
   - [API Documentation and Testing](#api-documentation-and-testing)
   - [API Endpoints](#api-endpoints)
     - [Authentication Endpoints](#authentication-endpoints)
@@ -106,13 +108,27 @@ This project provides the backend API for the SafeTravel application, built with
 
 Ensure you have the following installed on your system:
 
--   Python 3.8+
--   MySQL Server
+-   Python 3.10+ (tested on Python 3.12)
+-   MySQL Server (MySQL 8+ recommended)
 -   `git` (for cloning the repository)
 
 ## Setup Instructions
 
 Follow these steps to get the SafeTravel-Server up and running on your local machine.
+
+### 0. Quick Start (Development)
+
+```bash
+cp .env.example .env
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn run:app --reload
+```
+
+Notes:
+- Make sure MySQL is running and `DATABASE_URL` in `.env` points to a reachable MySQL instance.
+- On startup (when `ENVIRONMENT=development`), the app will try to create the database (if missing) and then create tables.
 
 ### 1. Clone the Repository
 
@@ -152,15 +168,17 @@ pip install -r requirements.txt
 
 This project uses MySQL.
 
-1.  **Create a MySQL database:**
-    Using your preferred MySQL client (e.g., MySQL Workbench, phpMyAdmin, or command line), create a new database named `safetravel`.
+1.  **Create a MySQL database (optional):**
+    If your MySQL user does not have permission to create databases, create the database manually.
 
     ```sql
     CREATE DATABASE safetravel;
     ```
 
 2.  **Database Schema:**
-    The application will automatically create all necessary tables (`users`, `circles`, `circle_members`, `friend_requests`, `friendships`, `locations`, `notifications`, `sos_alerts`, `news_incidents`, `user_report_incidents`, `admin_logs`, `trips`) when it starts (development mode), based on the SQLAlchemy models.
+    When `ENVIRONMENT=development` (default), the application will automatically:
+    - Ensure the database exists (if the MySQL user has `CREATE DATABASE` permission)
+    - Create all necessary tables based on the SQLAlchemy models
 
     **Note on Schema Updates:** If you modify database models, you may need to drop existing tables to allow the application to recreate them with the updated schema. Always back up your data before performing such operations in a production environment.
 
@@ -177,14 +195,20 @@ Open the newly created `.env` file and configure the following variables:
 ```
 DATABASE_URL="mysql+mysqlconnector://root:@127.0.0.1/safetravel"
 SECRET_KEY="your_super_secret_key"
+ENVIRONMENT="development"
 GEMINI_API_KEY="your_api_key_here"
 GEOAPIFY_KEY="your_geoapify_key_here"
+GEMINI_MODEL="gemini-2.5-flash"
+LOG_LEVEL="INFO"
 ```
 
 -   **`DATABASE_URL`**: Update with your MySQL connection string if your credentials or host differ.
 -   **`SECRET_KEY`**: **Crucially, replace `your_super_secret_key` with a strong, unique, and random key for production security.**
--   **`GEMINI_API_KEY`**: Provide your API key for Google Gemini services.
--   **`GEOAPIFY_KEY`**: Required for reverse geocoding and geocoding used by the AI/weather and news-incident modules.
+-   **`ENVIRONMENT`**: Set to `development` to auto-create DB/tables on startup (recommended for local dev).
+-   **`GEMINI_API_KEY`**: Used by AI features (Gemini). The current settings loader expects this value to be present; if you are not using AI endpoints in local dev, you can still set a placeholder value.
+-   **`GEOAPIFY_KEY`**: Used for geocoding/reverse geocoding in AI/weather and news-incident modules. The current settings loader expects this value to be present; set a placeholder if unused.
+-   **`GEMINI_MODEL`**: Optional; defaults to `gemini-2.5-flash`.
+-   **`LOG_LEVEL`**: Optional; defaults to `INFO`.
 
 ### 6. Run the Application
 
@@ -219,6 +243,11 @@ python3 tools/fetch_hcm_news_incidents.py --server http://127.0.0.1:8000 --count
 # python3 tools/fetch_hcm_news_incidents.py --dry-run
 # python3 tools/fetch_hcm_news_incidents.py --username bot_hcm --password 'StrongPass123'
 ```
+
+## Project Docs
+
+- `docs/architecture.md` — Domain-Driven Design (DDD) / clean architecture guide for this codebase
+- `docs/Gemini.md` — how to use the `GeminiClient` and AI services
 
 
 ## API Documentation and Testing
@@ -1164,4 +1193,4 @@ Contributions are welcome! Please feel free to submit issues, feature requests, 
 
 ## License
 
-This project is licensed under the MIT License. See the `LICENSE` file for details.
+No license is specified yet in this repository. If you plan to open-source it, add a `LICENSE` file and update this section accordingly.
