@@ -1,61 +1,49 @@
 # SafeTravel-Server
 
-Backend API for the SafeTravel application, built with **FastAPI + SQLAlchemy + MySQL**.
+Backend API cho ứng dụng SafeTravel, xây dựng bằng **FastAPI + SQLAlchemy + MySQL**.
 
 - Base URL (local): `http://127.0.0.1:8000`
 - Swagger UI: `http://127.0.0.1:8000/docs`
 - ReDoc: `http://127.0.0.1:8000/redoc`
-- All API routes are prefixed with `/api` (see `run.py`)
+- Tất cả API bên dưới dùng prefix: `/api` (xem `run.py`)
 
-## Table of Contents
+## Mục lục
 
-- [Overview](#overview)
-- [Tech Stack](#tech-stack)
-- [Local Development](#local-development)
-- [Environment Variables](#environment-variables)
-- [Authentication (JWT Bearer)](#authentication-jwt-bearer)
-- [API (Request/Response Examples)](#api-requestresponse-examples)
+- [Tổng quan](#tổng-quan)
+- [Chạy local (dev)](#chạy-local-dev)
+- [Cấu hình môi trường](#cấu-hình-môi-trường)
+- [Xác thực (JWT Bearer)](#xác-thực-jwt-bearer)
+- [API (Request/Response mẫu)](#api-requestresponse-mẫu)
   - [Health](#health)
   - [Auth](#auth)
   - [Users](#users)
   - [Friends](#friends)
   - [Circles](#circles)
-  - [SOS + User Reports](#sos--user-reports)
+  - [SOS + User Report](#sos--user-report)
   - [Map Incidents Feed](#map-incidents-feed)
   - [News Incidents](#news-incidents)
   - [Trips](#trips)
   - [Notifications](#notifications)
   - [Admin Logs](#admin-logs)
   - [AI Report](#ai-report)
-- [Project Docs](#project-docs)
-- [Local Tools](#local-tools)
-- [Notes / Gotchas](#notes--gotchas)
-- [License](#license)
+- [Tài liệu bổ sung](#tài-liệu-bổ-sung)
+- [Local tools](#local-tools)
+- [Ghi chú & gotchas](#ghi-chú--gotchas)
 
-## Overview
+## Tổng quan
 
-Key modules:
+Các module chính:
 
-- Auth: register/login JWT
-- Friends: friend requests by username + accept/reject + list/remove friends
-- Circles: safety circles (active/inactive) + manage members
-- SOS: create SOS alerts, update status, list my alerts
-- Map incidents: prioritized mixed feed (friends/circle SOS, nearby SOS, incident reports)
-- News incidents: AI extraction + geocoding + query by radius
-- Trips: CRUD trips
-- Notifications / Admin Logs / AI: currently **partially unauthenticated** (see gotchas)
+- Auth: đăng ký/đăng nhập JWT
+- Friends: kết bạn theo username + duyệt yêu cầu
+- Circles: nhóm an toàn (active/inactive) + quản lý thành viên
+- SOS: gửi SOS theo vị trí, cập nhật trạng thái, lấy lịch sử
+- Map incidents: feed tổng hợp ưu tiên (SOS bạn bè/vòng tròn, SOS gần đó, incident tự tạo)
+- News incidents: trích xuất sự kiện tiêu cực từ tin tức (AI + geocoding) và truy vấn theo bán kính
+- Trips: CRUD chuyến đi
+- Notifications/Admin logs/AI: hiện tại **một phần chưa khóa auth** (xem phần gotchas)
 
-## Tech Stack
-
-- FastAPI + Uvicorn
-- SQLAlchemy 2.x
-- MySQL (via `mysql-connector-python`)
-- JWT auth (`python-jose`, `passlib`, `bcrypt`)
-- AI / Geocoding:
-  - Gemini (`google-genai`)
-  - Geoapify (HTTP via `httpx`)
-
-## Local Development
+## Chạy local (dev)
 
 ```bash
 cp .env.example .env
@@ -65,26 +53,26 @@ pip install -r requirements.txt
 uvicorn run:app --reload
 ```
 
-When `ENVIRONMENT=development`, the app will attempt to:
+Mặc định `ENVIRONMENT=development` (nếu bạn set trong `.env`) thì app sẽ:
 
-- create the database (if the MySQL user has `CREATE DATABASE` permission)
-- create tables from SQLAlchemy models on startup
+- thử tạo database (nếu MySQL user có quyền `CREATE DATABASE`)
+- tạo tables theo SQLAlchemy models khi khởi động (xem `run.py` + `src/infrastructure/database/sql/database.py`)
 
-## Environment Variables
+## Cấu hình môi trường
 
-Create `.env` from `.env.example`:
+Tạo `.env` từ `.env.example`:
 
 ```bash
 cp .env.example .env
 ```
 
-Minimal example:
+Ví dụ `.env` tối thiểu:
 
 ```env
 DATABASE_URL=mysql+mysqlconnector://root:@127.0.0.1/safetravel
 SECRET_KEY=your_super_secret_key_here
 
-# Settings currently expects these to exist (even if you don't call AI endpoints)
+# Hiện tại Settings bắt buộc có 2 key này (dù bạn có dùng AI hay không)
 GEMINI_API_KEY=your_api_key_here
 GEOAPIFY_KEY=your_geoapify_key_here
 
@@ -94,33 +82,33 @@ GEMINI_MODEL=gemini-2.5-flash
 LOG_LEVEL=INFO
 ```
 
-## Authentication (JWT Bearer)
+## Xác thực (JWT Bearer)
 
-- Login issues a JWT: `POST /api/login`
-- Send token to protected routes:
+- Login trả về token JWT: `POST /api/login`
+- Gửi token vào header cho các endpoint yêu cầu đăng nhập:
 
 `Authorization: Bearer <access_token>`
 
-Typical auth error:
+Lỗi auth thường có format:
 
 ```json
 { "detail": "Could not validate credentials" }
 ```
 
-## API (Request/Response Examples)
+## API (Request/Response mẫu)
 
-General notes:
+Ghi chú chung:
 
-- JSON endpoints use `Content-Type: application/json`
-- `POST /api/login` uses **form data**: `application/x-www-form-urlencoded`
-- Some endpoints return `204 No Content` (no response body)
-- Datetimes are ISO 8601 strings (`created_at`, `start_date`, ...)
+- `Content-Type` mặc định với JSON: `application/json`
+- `POST /api/login` dùng **form**: `application/x-www-form-urlencoded`
+- Thời gian (`created_at`, `start_date`, …) trả về dạng ISO 8601 string
+- Một số endpoint trả `204 No Content` (không có body)
 
 ### Health
 
 #### `GET /`
 
-- Auth: No
+- Auth: Không
 - Response `200`:
 
 ```json
@@ -131,8 +119,8 @@ General notes:
 
 #### `POST /api/register`
 
-- Auth: No
-- Request body (`UserRegisterDTO`):
+- Auth: Không
+- Request body:
 
 ```json
 {
@@ -161,7 +149,7 @@ General notes:
 
 #### `POST /api/login`
 
-- Auth: No
+- Auth: Không
 - Content-Type: `application/x-www-form-urlencoded`
 - Body:
 
@@ -180,13 +168,13 @@ username=testuser&password=StrongPass123
 
 #### `GET /api/users/me`
 
-- Auth: Yes
-- Response `200` (`UserDTO`): same shape as register response
+- Auth: Có
+- Response `200` (`UserDTO`): như `register`
 
 #### `POST /api/logout`
 
-- Auth: Yes
-- Request body: none
+- Auth: Có
+- Request body: không có
 - Response `200`:
 
 ```json
@@ -197,7 +185,7 @@ username=testuser&password=StrongPass123
 
 #### `GET /api/users/{user_id}`
 
-- Auth: Yes
+- Auth: Có
 - Response `200` (`UserDTO`):
 
 ```json
@@ -214,14 +202,14 @@ username=testuser&password=StrongPass123
 
 #### `DELETE /api/users/{user_id}`
 
-- Auth: Yes (must be self)
-- Response `204`: no body
+- Auth: Có (chỉ được xóa chính mình)
+- Response `204`: không có body
 
 ### Friends
 
 #### `POST /api/friend-requests`
 
-- Auth: Yes
+- Auth: Có
 - Request body (`FriendRequestCreate`):
 
 ```json
@@ -243,7 +231,7 @@ username=testuser&password=StrongPass123
 
 #### `GET /api/friend-requests/pending`
 
-- Auth: Yes
+- Auth: Có
 - Response `200`:
 
 ```json
@@ -261,8 +249,8 @@ username=testuser&password=StrongPass123
 
 #### `POST /api/friend-requests/{request_id}/accept`
 
-- Auth: Yes
-- Request body: none
+- Auth: Có
+- Request body: không có
 - Response `200` (`FriendshipResponse`):
 
 ```json
@@ -276,13 +264,13 @@ username=testuser&password=StrongPass123
 
 #### `POST /api/friend-requests/{request_id}/reject`
 
-- Auth: Yes
-- Request body: none
-- Response `200` (`FriendRequestResponse`): same shape as create, with `status: "rejected"`
+- Auth: Có
+- Request body: không có
+- Response `200` (`FriendRequestResponse`): `status` sẽ là `rejected`
 
 #### `GET /api/friends`
 
-- Auth: Yes
+- Auth: Có
 - Response `200` (`List[UserDTO]`):
 
 ```json
@@ -301,14 +289,14 @@ username=testuser&password=StrongPass123
 
 #### `DELETE /api/friends/{friend_id}`
 
-- Auth: Yes
-- Response `204`: no body
+- Auth: Có
+- Response `204`: không có body
 
 ### Circles
 
 #### `POST /api/circles`
 
-- Auth: Yes
+- Auth: Có
 - Request body (`CircleCreate`):
 
 ```json
@@ -331,14 +319,14 @@ username=testuser&password=StrongPass123
 }
 ```
 
-Notes:
+Ghi chú:
 
-- Creating a new circle deactivates any existing `active` circles for that owner.
-- The owner is automatically added as a circle member with `role: "owner"`.
+- Khi tạo circle mới, server sẽ set các circle đang `active` của user thành `inactive`
+- User tạo circle được auto add vào circle với `role="owner"`
 
 #### `GET /api/circles`
 
-- Auth: Yes
+- Auth: Có
 - Response `200` (`List[CircleInDB]`):
 
 ```json
@@ -362,13 +350,13 @@ Notes:
 
 #### `GET /api/circles/{circle_id}`
 
-- Auth: Yes (owner-only)
-- Response `200`: `CircleInDB`
+- Auth: Có (owner-only)
+- Response `200` (`CircleInDB`)
 
 #### `PUT /api/circles/{circle_id}`
 
-- Auth: Yes (owner-only)
-- Request body (`CircleUpdate`) (you may send a subset of fields):
+- Auth: Có (owner-only)
+- Request body (`CircleUpdate`) (bạn có thể gửi subset fields):
 
 ```json
 {
@@ -378,16 +366,16 @@ Notes:
 }
 ```
 
-- Response `200`: `CircleInDB`
+- Response `200` (`CircleInDB`)
 
 #### `DELETE /api/circles/{circle_id}`
 
-- Auth: Yes (owner-only)
-- Response `204`: no body
+- Auth: Có (owner-only)
+- Response `204`: không có body
 
 #### `POST /api/circles/{circle_id}/members`
 
-- Auth: Yes (owner-only)
+- Auth: Có (owner-only)
 - Request body (`CircleMemberCreate`):
 
 ```json
@@ -411,19 +399,19 @@ Notes:
 
 #### `DELETE /api/circles/{circle_id}/members/{member_id}`
 
-- Auth: Yes (owner-only)
-- Response `204`: no body
+- Auth: Có (owner-only)
+- Response `204`: không có body
 
 #### `GET /api/circles/{circle_id}/members`
 
-- Auth: Yes (owner or member)
-- Response `200`: `List[UserDTO]`
+- Auth: Có (owner hoặc member)
+- Response `200` (`List[UserDTO]`)
 
-### SOS + User Reports
+### SOS + User Report
 
 #### `POST /api/sos`
 
-- Auth: Yes
+- Auth: Có
 - Request body (`SOSAlertCreate`):
 
 ```json
@@ -437,10 +425,10 @@ Notes:
 }
 ```
 
-Notes:
+Ghi chú:
 
-- `user_id` must match the authenticated user.
-- `circle_id` is assigned server-side from the user's `active` circle (your input may be overwritten).
+- `user_id` **phải** là user đang đăng nhập
+- `circle_id` sẽ được server tự set theo circle `active` của user (giá trị bạn gửi có thể bị overwrite)
 
 - Response `201` (`SOSAlertInDB`):
 
@@ -460,8 +448,8 @@ Notes:
 
 #### `POST /api/sos/{alert_id}/status`
 
-- Auth: Yes (must own the alert)
-- Request body (`SOSAlertUpdate`) (usually only `status` is needed):
+- Auth: Có (phải là owner của alert)
+- Request body (`SOSAlertUpdate`) (thực tế thường chỉ cần `status`):
 
 ```json
 { "status": "resolved" }
@@ -485,7 +473,7 @@ Notes:
 
 #### `GET /api/sos/my_alerts`
 
-- Auth: Yes
+- Auth: Có
 - Response `200` (`List[SOSAlertInDB]`):
 
 ```json
@@ -506,9 +494,9 @@ Notes:
 
 #### `POST /api/incidents/report`
 
-Create a user-submitted on-map warning (stored as a `user_report_incident`).
+User báo cáo cảnh báo trên bản đồ (P1 user_report_incident).
 
-- Auth: Yes
+- Auth: Có
 - Request body (`UserReportIncidentCreate`):
 
 ```json
@@ -543,7 +531,7 @@ Create a user-submitted on-map warning (stored as a `user_report_incident`).
 
 #### `GET /api/incidents`
 
-- Auth: Yes
+- Auth: Có
 - Query params:
   - `latitude` (float, required)
   - `longitude` (float, required)
@@ -585,9 +573,9 @@ Create a user-submitted on-map warning (stored as a `user_report_incident`).
 
 #### `POST /api/incidents`
 
-Create an incident record (P2) that appears in the map feed.
+Tạo incident (P2) cho feed bản đồ.
 
-- Auth: Yes
+- Auth: Có
 - Request body (`IncidentCreateDTO`):
 
 ```json
@@ -620,9 +608,9 @@ Create an incident record (P2) that appears in the map feed.
 
 #### `POST /api/news-incidents/extract`
 
-Extract negative safety-related incidents from news (Gemini + Google Search), geocode via Geoapify, then store in DB.
+Trích xuất incidents tiêu cực từ tin tức (Gemini + Google Search) + geocode qua Geoapify, sau đó lưu DB.
 
-- Auth: Yes
+- Auth: Có
 - Request body (`NewsIncidentExtractRequest`):
 
 ```json
@@ -656,18 +644,37 @@ Extract negative safety-related incidents from news (Gemini + Google Search), ge
 
 #### `GET /api/news-incidents`
 
-- Auth: Yes
+- Auth: Có
 - Query params:
   - `latitude` (float, required)
   - `longitude` (float, required)
   - `radius` (float, optional, default `0.5`, `> 0`)
-- Response `200` (`List[NewsIncidentInDB]`): same shape as extract response
+- Response `200` (`List[NewsIncidentInDB]`):
+
+```json
+[
+  {
+    "title": "Flooding causes travel disruption",
+    "summary": "Road closures reported in multiple districts...",
+    "category": "disaster",
+    "location_name": "Da Nang, Vietnam",
+    "latitude": 16.0544,
+    "longitude": 108.2022,
+    "source_url": "https://example.com/news/...",
+    "published_at": "2025-12-12T00:00:00.000000",
+    "severity": 75,
+    "id": 1,
+    "created_at": "2025-12-16T12:45:00.000000",
+    "updated_at": "2025-12-16T12:45:00.000000"
+  }
+]
+```
 
 ### Trips
 
 #### `POST /api/trips/`
 
-- Auth: Yes
+- Auth: Có
 - Request body (`TripBase`):
 
 ```json
@@ -704,23 +711,23 @@ Extract negative safety-related incidents from news (Gemini + Google Search), ge
 
 #### `GET /api/trips/{trip_id}`
 
-- Auth: Yes
-- Response `200`: `TripDTO` (same shape as create response)
+- Auth: Có
+- Response `200` (`TripDTO`): như response của `POST /api/trips/`
 
 #### `PUT /api/trips/{trip_id}`
 
-- Auth: Yes
-- Request body: `TripBase` (same schema as create)
+- Auth: Có
+- Request body: `TripBase` (đang dùng cùng schema với create)
 - Response `200`: `TripDTO`
 
 #### `DELETE /api/trips/{trip_id}`
 
-- Auth: Yes
-- Response `204`: no body
+- Auth: Có
+- Response `204`: không có body
 
 #### `GET /api/users/{user_id}/trips`
 
-- Auth: Yes
+- Auth: Có
 - Response `200` (`List[TripDTO]`):
 
 ```json
@@ -743,11 +750,11 @@ Extract negative safety-related incidents from news (Gemini + Google Search), ge
 
 ### Notifications
 
-Note: notification CRUD endpoints are currently **partially unauthenticated** (see gotchas).
+Lưu ý: CRUD notifications hiện tại có endpoint **chưa khóa auth** (xem gotchas).
 
 #### `POST /api/notifications`
 
-- Auth: No
+- Auth: Không
 - Request body (`NotificationCreate`):
 
 ```json
@@ -776,7 +783,7 @@ Note: notification CRUD endpoints are currently **partially unauthenticated** (s
 
 #### `GET /api/notifications`
 
-- Auth: Yes
+- Auth: Có
 - Response `200` (`List[NotificationInDB]`):
 
 ```json
@@ -795,13 +802,13 @@ Note: notification CRUD endpoints are currently **partially unauthenticated** (s
 
 #### `GET /api/notifications/{notification_id}`
 
-- Auth: No
+- Auth: Không
 - Response `200`: `NotificationInDB`
 
 #### `PUT /api/notifications/{notification_id}`
 
-- Auth: No
-- Request body (`NotificationUpdate`) (you may send a subset):
+- Auth: Không
+- Request body (`NotificationUpdate`) (có thể gửi subset fields):
 
 ```json
 { "is_read": true }
@@ -811,16 +818,16 @@ Note: notification CRUD endpoints are currently **partially unauthenticated** (s
 
 #### `DELETE /api/notifications/{notification_id}`
 
-- Auth: No
-- Response `204`: no body
+- Auth: Không
+- Response `204`: không có body
 
 ### Admin Logs
 
-Note: admin log endpoints are currently **unauthenticated** (see gotchas).
+Lưu ý: admin logs hiện tại **chưa khóa auth** (xem gotchas).
 
 #### `POST /api/admin_logs`
 
-- Auth: No
+- Auth: Không
 - Request body (`AdminLogCreate`):
 
 ```json
@@ -845,12 +852,12 @@ Note: admin log endpoints are currently **unauthenticated** (see gotchas).
 
 #### `GET /api/admin_logs/{admin_log_id}`
 
-- Auth: No
-- Response `200`: `AdminLogInDB` (same shape as create response)
+- Auth: Không
+- Response `200` (`AdminLogInDB`): như response của `POST /api/admin_logs`
 
 #### `GET /api/admins/{admin_id}/admin_logs`
 
-- Auth: No
+- Auth: Không
 - Response `200` (`List[AdminLogInDB]`):
 
 ```json
@@ -867,7 +874,7 @@ Note: admin log endpoints are currently **unauthenticated** (see gotchas).
 
 #### `PUT /api/admin_logs/{admin_log_id}`
 
-- Auth: No
+- Auth: Không
 - Request body (`AdminLogUpdate`):
 
 ```json
@@ -878,26 +885,26 @@ Note: admin log endpoints are currently **unauthenticated** (see gotchas).
 
 #### `DELETE /api/admin_logs/{admin_log_id}`
 
-- Auth: No
-- Response `204`: no body
+- Auth: Không
+- Response `204`: không có body
 
 ### AI Report
 
-Notes:
+Lưu ý:
 
-- AI endpoints are currently **unauthenticated**
-- Require outbound network + valid keys (Gemini + Geoapify)
+- AI endpoints hiện tại **chưa khóa auth**
+- Cần outbound network + key hợp lệ (Gemini + Geoapify)
 
 #### `POST /api/weather`
 
-- Auth: No
+- Auth: Không
 - Request body:
 
 ```json
 { "lat": 10.7825, "long": 106.6935 }
 ```
 
-- Response `200` (`VietnamReport`) (shortened):
+- Response `200` (`VietnamReport`) (rút gọn):
 
 ```json
 {
@@ -906,14 +913,14 @@ Notes:
       "province_name": "Ho Chi Minh City",
       "report_date": "2025-12-16",
       "weather_forecast": [
-        { "date": "2025-12-16", "temperature": "24-31°C", "condition": "Cloudy" },
-        { "date": "2025-12-17", "temperature": "24-31°C", "condition": "Showers" },
-        { "date": "2025-12-18", "temperature": "24-30°C", "condition": "Cloudy" }
+        { "date": "2025-12-16", "temperature": "24-31°C", "condition": "Có mây" },
+        { "date": "2025-12-17", "temperature": "24-31°C", "condition": "Mưa rào" },
+        { "date": "2025-12-18", "temperature": "24-30°C", "condition": "Có mây" }
       ],
       "travel_advice": [
-        { "category": "Transport", "advice": "..." },
-        { "category": "Safety", "advice": "..." },
-        { "category": "Clothing", "advice": "..." }
+        { "category": "Di chuyển", "advice": "..." },
+        { "category": "An toàn", "advice": "..." },
+        { "category": "Trang phục", "advice": "..." }
       ],
       "executive_summary": "...",
       "sources": ["https://..."],
@@ -925,27 +932,26 @@ Notes:
 
 #### `POST /api/weather_place`
 
-- Auth: No
-- Request body: none (parameter is a query string)
-- Example: `POST /api/weather_place?province_name=Ho%20Chi%20Minh%20City`
+- Auth: Không
+- Request body: không có (tham số là query string)
 - Response: `VietnamReport`
 
-## Project Docs
+## Tài liệu bổ sung
 
-- `docs/routes.md` — full route list + POST request bodies
-- `docs/frontend_guide.md` — frontend/mobile integration guide
+- `docs/routes.md` — danh sách route đầy đủ + request body cho tất cả `POST`
+- `docs/frontend_guide.md` — guide tích hợp cho frontend/mobile
 - `docs/architecture.md` — DDD / clean architecture overview
-- `docs/Gemini.md` — Gemini client notes
+- `docs/Gemini.md` — ghi chú về `GeminiClient`
 
-## Local Tools
+## Local tools
 
 ### Auto-post TP.HCM news as SOS (dev)
 
-Dev-only script that pulls incident-like news for Ho Chi Minh City (Google News RSS), geocodes via Nominatim, then auto-creates a user/circle and posts many SOS alerts.
+Script dev để lấy tin “incident-like” cho TP.HCM (Google News RSS), geocode qua Nominatim, rồi tự tạo user/circle và bắn hàng loạt SOS.
 
-- File: `tools/fetch_hcm_news_incidents.py` (gitignored)
-- Cache: `generated/geocode_cache.json` (gitignored)
-- Requires internet (RSS + Nominatim)
+- File: `tools/fetch_hcm_news_incidents.py` (bị ignore bởi git)
+- Cache: `generated/geocode_cache.json` (bị ignore bởi git)
+- Cần internet (RSS + Nominatim)
 
 ```bash
 # 1) Start server
@@ -955,17 +961,12 @@ uvicorn run:app --reload
 python3 tools/fetch_hcm_news_incidents.py --server http://127.0.0.1:8000 --count 50
 ```
 
-## Notes / Gotchas
+## Ghi chú & gotchas
 
-- CORS: `run.py` does not configure `CORSMiddleware`. If your frontend runs on a different origin, use a dev proxy or add CORS middleware.
-- `radius` is not consistent across features:
-  - SOS + News incidents use a degree-based bounding box (`lat/lon ± radius`)
-  - Incident P2 uses a Haversine distance in kilometers
-- Auth is not consistent yet:
-  - Some endpoints are public (Notifications CRUD, Admin Logs, AI). Lock them down before production.
-- No `LICENSE` file is currently included in this repository.
-
-## License
-
-No license is specified yet in this repository.
-
+- **CORS**: `run.py` chưa cấu hình `CORSMiddleware`. Nếu frontend chạy khác origin, cần dev proxy hoặc thêm CORS ở backend.
+- **radius không đồng nhất**:
+  - SOS + News incidents: lọc theo bounding box `lat/lon ± radius` (không phải km/meters)
+  - Incident P2 (`/api/incidents`): repository dùng Haversine (km)
+- **Auth chưa đồng nhất**:
+  - Một số endpoint hiện tại public (Notifications CRUD, Admin Logs, AI). Nếu deploy production nên khóa lại.
+- **License**: repo hiện chưa có `LICENSE` file.
