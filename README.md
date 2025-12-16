@@ -248,6 +248,8 @@ python3 tools/fetch_hcm_news_incidents.py --server http://127.0.0.1:8000 --count
 
 - `docs/architecture.md` — Domain-Driven Design (DDD) / clean architecture guide for this codebase
 - `docs/Gemini.md` — how to use the `GeminiClient` and AI services
+- `docs/routes.md` — complete route list (method/path/auth + DTO references)
+- `docs/frontend_guide.md` — guide for frontend/mobile integration
 
 
 ## API Documentation and Testing
@@ -263,6 +265,8 @@ Or the ReDoc documentation at:
 These interfaces provide detailed information about all available endpoints, request/response schemas, and allow you to test the API directly from your browser.
 
 ## API Endpoints
+
+For the up-to-date route list (method/path/auth) and DTO references, see `docs/routes.md` or the interactive Swagger UI at `http://127.0.0.1:8000/docs`.
 
 This section provides examples for testing the API endpoints using Postman.
 

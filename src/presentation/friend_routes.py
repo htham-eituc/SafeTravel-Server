@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from src.application.friend.dto import FriendRequestCreate, FriendRequestResponse, FriendshipResponse
+from src.application.user.dto import UserDTO
 from src.application.friend.use_cases import FriendUseCases
 from src.application.dependencies import get_db, get_current_user, get_friend_use_cases
 from src.domain.user.entities import User as UserEntity
@@ -59,13 +60,14 @@ def reject_friend_request(
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
-@router.get("/friends", response_model=List[UserEntity])
+@router.get("/friends", response_model=List[UserDTO])
 def get_friends(
     current_user: UserEntity = Depends(get_current_user),
     friend_use_cases: FriendUseCases = Depends(get_friend_use_cases),
     db: Session = Depends(get_db)
 ):
-    return friend_use_cases.get_friends_by_user_id(db, current_user.id)
+    friends = friend_use_cases.get_friends_by_user_id(db, current_user.id)
+    return [UserDTO.from_orm(friend) for friend in friends]
 
 @router.delete("/friends/{friend_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_friend(
