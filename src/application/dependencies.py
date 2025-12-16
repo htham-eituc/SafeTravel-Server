@@ -203,3 +203,35 @@ def provide_trip_use_cases(
     trip_use_cases: TripUseCases = Depends(get_trip_use_cases)
 ) -> TripUseCases:
     return trip_use_cases
+
+
+from src.application.incident.use_cases import GetIncidentsUseCase
+from src.domain.incident.repository_interface import IIncidentRepository
+from src.infrastructure.incident.repository_impl import IncidentRepository
+
+def get_incident_repository_impl(db: Session = Depends(get_db_session)) -> IncidentRepository:
+    return IncidentRepository()
+
+def get_incidents_use_cases(
+    incident_repo: IIncidentRepository = Depends(get_incident_repository_impl),
+    sos_alert_repo: ISOSAlertRepository = Depends(get_sos_alert_repository_impl),
+    friend_repo: IFriendRepository = Depends(get_friend_repository_impl),
+    circle_repo: ICircleRepository = Depends(get_circle_repository_impl),
+    circle_member_repo: ICircleMemberRepository = Depends(get_circle_member_repository_impl),
+    user_repo: IUserRepository = Depends(provide_user_repository)
+) -> GetIncidentsUseCase:
+    return GetIncidentsUseCase(
+        incident_repository=incident_repo,
+        sos_alert_repository=sos_alert_repo,
+        friend_repository=friend_repo,
+        circle_repository=circle_repo,
+        circle_member_repository=circle_member_repo,
+        user_repository=user_repo
+    )
+
+from src.application.incident.use_cases import CreateIncidentUseCase
+
+def get_create_incident_use_case(
+    incident_repo: IIncidentRepository = Depends(get_incident_repository_impl),
+) -> CreateIncidentUseCase:
+    return CreateIncidentUseCase(incident_repository=incident_repo)
