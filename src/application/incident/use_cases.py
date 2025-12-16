@@ -1,4 +1,5 @@
 from typing import List, Set
+from datetime import datetime
 from sqlalchemy.orm import Session
 from src.application.incident.dto import (
     GetIncidentsRequestDTO,
@@ -123,3 +124,12 @@ class CreateIncidentUseCase:
         )
         created_incident = self.incident_repository.create(db, incident_entity)
         return IncidentDTO.model_validate(created_incident.__dict__)
+
+
+class DeleteIncidentUseCase:
+    def __init__(self, incident_repository: IIncidentRepository):
+        self.incident_repository = incident_repository
+
+    def execute(self, db: Session, incident_id: int) -> bool:
+        """Delete an incident by id. Returns True if deleted, False if not found."""
+        return self.incident_repository.delete(db, incident_id)
