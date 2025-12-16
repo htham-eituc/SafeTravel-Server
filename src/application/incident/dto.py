@@ -15,6 +15,7 @@ class SOSAlertDTO(BaseModel):
     latitude: float
     longitude: float
     message: Optional[str] = None
+    status: str
     created_at: datetime
     user: UserInfoDTO
 

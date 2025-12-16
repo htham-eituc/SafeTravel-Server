@@ -235,3 +235,10 @@ def get_create_incident_use_case(
     incident_repo: IIncidentRepository = Depends(get_incident_repository_impl),
 ) -> CreateIncidentUseCase:
     return CreateIncidentUseCase(incident_repository=incident_repo)
+
+from src.application.incident.use_cases import DeleteIncidentUseCase
+
+def get_delete_incident_use_case(
+    incident_repo: IIncidentRepository = Depends(get_incident_repository_impl),
+) -> DeleteIncidentUseCase:
+    return DeleteIncidentUseCase(incident_repository=incident_repo)

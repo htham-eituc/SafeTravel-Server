@@ -22,3 +22,7 @@ class IIncidentRepository(ABC):
         radius: float
     ) -> List[IncidentEntity]:
         pass
+
+    @abstractmethod
+    def delete(self, db: Session, incident_id: int) -> bool:
+        pass
