@@ -13,6 +13,20 @@ class ISOSAlertRepository(ABC):
         pass
 
     @abstractmethod
+    def get_sos_alerts_by_user_ids(self, db: Session, user_ids: List[int]) -> List[SOSAlertEntity]:
+        pass
+
+    @abstractmethod
+    def get_sos_alerts_within_radius(
+        self,
+        db: Session,
+        latitude: float,
+        longitude: float,
+        radius: float
+    ) -> List[SOSAlertEntity]:
+        pass
+
+    @abstractmethod
     def create_sos_alert(self, db: Session, sos_alert_data: SOSAlertEntity) -> SOSAlertEntity:
         pass
 

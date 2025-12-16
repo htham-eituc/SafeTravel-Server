@@ -66,7 +66,7 @@ config_json = types.GenerateContentConfig(
 # ==========================
 # Router setup
 # ==========================
-router = APIRouter(prefix="/api", tags=["AI Report"])
+router = APIRouter(tags=["AI Report"])
 
 
 async def geocode_location(lat: float, lon: float) -> str:

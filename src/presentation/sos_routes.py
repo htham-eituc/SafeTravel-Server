@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from typing import List, Annotated
 from sqlalchemy.orm import Session
 from src.application.dependencies import (
@@ -7,10 +7,19 @@ from src.application.dependencies import (
     get_sos_alert_use_cases, # Changed from provide_sos_alert_use_cases
     get_friend_use_cases, # Changed from provide_friend_use_case
     get_notification_use_cases, # Changed from provide_notification_use_case
-    get_circle_use_cases # Changed from provide_circle_use_cases
+    get_circle_use_cases, # Changed from provide_circle_use_cases
+    get_user_report_incident_use_cases
 )
-from src.application.sos_alert.dto import SOSAlertCreate, SOSAlertUpdate, SOSAlertInDB
+from src.application.sos_alert.dto import (
+    SOSAlertCreate,
+    SOSAlertUpdate,
+    SOSAlertInDB,
+    SOSIncidentResponse
+)
+from src.application.incident.dto import MapIncidentsResponse
 from src.application.sos_alert.use_cases import SOSAlertUseCases # Changed from SOSService
+from src.application.user_report_incident.use_cases import UserReportIncidentUseCases
+from src.application.user_report_incident.dto import UserReportIncidentCreate, UserReportIncidentInDB
 from src.application.friend.use_cases import FriendUseCases
 from src.application.notification.use_cases import NotificationUseCases
 from src.application.notification.dto import NotificationCreate
@@ -144,3 +153,56 @@ async def get_my_sos_alerts(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"An error occurred: {str(e)}"
         )
+
+@router.get("/incidents", response_model=MapIncidentsResponse)
+async def get_incidents_for_map(
+    current_user: Annotated[UserEntity, Depends(get_current_user)],
+    latitude: float = Query(..., description="Latitude of the point on the map"),
+    longitude: float = Query(..., description="Longitude of the point on the map"),
+    radius: float = Query(0.5, gt=0, description="Radius (in degrees) used for proximity search"),
+    db: Session = Depends(get_db_session),
+    sos_alert_use_cases: SOSAlertUseCases = Depends(get_sos_alert_use_cases)
+):
+    """
+    Get map incidents (P0/P1 only):
+    - P0: SOS from friends/circles (highest priority)
+    - P1: SOS from nearby strangers (radius-based)
+
+    News-based P2 incidents are intentionally excluded.
+    """
+    try:
+        sos = sos_alert_use_cases.get_incidents_for_map(db, current_user.id, latitude, longitude, radius)
+
+        def is_friend_signal(item: SOSIncidentResponse) -> bool:
+            friend_sources = {"friend", "circle", "friend_or_circle"}
+            return any(source in friend_sources for source in item.sources)
+
+        p0_sos = [item for item in sos if is_friend_signal(item)]
+        p1_sos = [item for item in sos if not is_friend_signal(item)]
+
+        return MapIncidentsResponse(
+            p0_sos_friends=p0_sos,
+            p1_sos_nearby_strangers=p1_sos,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred: {str(e)}")
+
+
+@router.post("/incidents/report", response_model=UserReportIncidentInDB, status_code=status.HTTP_201_CREATED)
+async def report_incident(
+    body: UserReportIncidentCreate,
+    current_user: Annotated[UserEntity, Depends(get_current_user)],
+    db: Session = Depends(get_db_session),
+    user_report_incident_use_cases: UserReportIncidentUseCases = Depends(get_user_report_incident_use_cases),
+):
+    """
+    User reports an on-map warning (P1).
+    """
+    try:
+        return user_report_incident_use_cases.create_report(db, reporter_id=current_user.id, data=body)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred: {str(e)}")

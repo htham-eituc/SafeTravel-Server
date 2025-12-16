@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 
 class SOSAlertBase(BaseModel):
     user_id: int
@@ -28,3 +28,14 @@ class SOSAlertInDB(SOSAlertBase):
 
     class Config:
         from_attributes = True
+
+class SOSIncidentUser(BaseModel):
+    id: int
+    username: str
+    full_name: Optional[str] = None
+    avatar_url: Optional[str] = None
+
+class SOSIncidentResponse(BaseModel):
+    alert: SOSAlertInDB
+    user: SOSIncidentUser
+    sources: List[str]
