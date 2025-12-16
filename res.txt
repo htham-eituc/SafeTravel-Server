@@ -1,8 +1,0 @@
---- Register User 1 ---
-Message: Failed to register user.
-No response received (connection error or unexpected issue).
-
---- Register User 2 ---
-Message: Failed to register user.
-No response received (connection error or unexpected issue).
-
