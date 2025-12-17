@@ -23,7 +23,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 # Cấu hình Model & Retry
 # Lưu ý: Hiện tại Google mới public bản 2.0-flash-exp. 
 # Nếu bạn có quyền truy cập 2.5, hãy đổi chuỗi này.
-MODEL_NAME = "gemini-2.5-flash-lite " 
+MODEL_NAME = "gemini-2.5-flash" 
 RETRY_DELAY_SECONDS = 2  # Yêu cầu: Timeout/Delay 2s khi lỗi
 MAX_RETRIES = 3
 

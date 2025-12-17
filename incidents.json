@@ -1,0 +1,402 @@
+[
+  {
+    "title": "An Phu Intersection",
+    "description": "Heavy construction, container trucks, complex detours causing confusion.",
+    "category": "Traffic",
+    "latitude": 10.7989,
+    "longitude": 106.7513,
+    "severity": 5
+  },
+  {
+    "title": "My Thuy Roundabout",
+    "description": "High collision risk with container trucks due to blind spots.",
+    "category": "Traffic",
+    "latitude": 10.7709,
+    "longitude": 106.7827,
+    "severity": 5
+  },
+  {
+    "title": "Nguyen Tat Thanh Jam",
+    "description": "Narrow road operating at 140% capacity, mixed heavy/light traffic.",
+    "category": "Traffic",
+    "latitude": 10.8262,
+    "longitude": 106.753,
+    "severity": 4
+  },
+  {
+    "title": "Hang Xanh Intersect",
+    "description": "High-speed entry point, confusing multi-layer traffic flow.",
+    "category": "Traffic",
+    "latitude": 10.8016,
+    "longitude": 106.7102,
+    "severity": 4
+  },
+  {
+    "title": "Dan Chu Roundabout",
+    "description": "Chaotic large-diameter roundabout, difficult for novices to navigate.",
+    "category": "Traffic",
+    "latitude": 10.7766,
+    "longitude": 106.6806,
+    "severity": 3
+  },
+  {
+    "title": "Phu My Bridge",
+    "description": "Steep gradient and high crosswinds dangerous for motorbikes.",
+    "category": "Traffic",
+    "latitude": 10.745,
+    "longitude": 106.7444,
+    "severity": 4
+  },
+  {
+    "title": "Truong Chinh St",
+    "description": "Chronic gridlock, primary gateway to NW suburbs and industrial zones.",
+    "category": "Traffic",
+    "latitude": 10.8123,
+    "longitude": 106.6345,
+    "severity": 4
+  },
+  {
+    "title": "Cong Hoa Street",
+    "description": "Main airport artery, severe rush hour jams causing flight delays.",
+    "category": "Traffic",
+    "latitude": 10.8018,
+    "longitude": 106.6496,
+    "severity": 4
+  },
+  {
+    "title": "An Suong Intersect",
+    "description": "Complex multi-level interchange with heavy provincial bus traffic.",
+    "category": "Traffic",
+    "latitude": 10.8443,
+    "longitude": 106.6186,
+    "severity": 4
+  },
+  {
+    "title": "Go Vap 5-Way",
+    "description": "Confusing 5-way intersection (Ngu Nga Chuong Cho), heavy volume.",
+    "category": "Traffic",
+    "latitude": 10.8266,
+    "longitude": 106.6789,
+    "severity": 3
+  },
+  {
+    "title": "Nguyen Van Linh/QL50",
+    "description": "Collision risk between highway speed vehicles and turning motorbikes.",
+    "category": "Traffic",
+    "latitude": 10.7303,
+    "longitude": 106.6575,
+    "severity": 4
+  },
+  {
+    "title": "Tan Son Nhat Entry",
+    "description": "Congestion at airport gates, chaotic taxi pickup/drop-off.",
+    "category": "Traffic",
+    "latitude": 10.8153,
+    "longitude": 106.6635,
+    "severity": 3
+  },
+  {
+    "title": "Xo Viet Nghe Tinh",
+    "description": "Bottleneck towards Eastern Bus Station, extreme evening density.",
+    "category": "Traffic",
+    "latitude": 10.8034,
+    "longitude": 106.7118,
+    "severity": 3
+  },
+  {
+    "title": "Dinh Bo Linh St",
+    "description": "Heavy bus traffic entering Mien Dong station causing hazards.",
+    "category": "Traffic",
+    "latitude": 10.8083,
+    "longitude": 106.7099,
+    "severity": 3
+  },
+  {
+    "title": "Bui Vien Pocketing",
+    "description": "High pickpocket risk in crowded bars and walking street.",
+    "category": "Robbery",
+    "latitude": 10.7674,
+    "longitude": 106.694,
+    "severity": 4
+  },
+  {
+    "title": "Ben Thanh Snatch",
+    "description": "Bag snatching risk at market perimeter/roundabout crossings.",
+    "category": "Robbery",
+    "latitude": 10.7725,
+    "longitude": 106.698,
+    "severity": 3
+  },
+  {
+    "title": "Nguyen Hue Theft",
+    "description": "Phone snatching while taking photos on pedestrian street.",
+    "category": "Robbery",
+    "latitude": 10.7739,
+    "longitude": 106.7036,
+    "severity": 3
+  },
+  {
+    "title": "Pham Ngu Lao St",
+    "description": "Backpack theft from motorbikes/sidewalks near bus offices.",
+    "category": "Robbery",
+    "latitude": 10.7685,
+    "longitude": 106.6928,
+    "severity": 3
+  },
+  {
+    "title": "War Remnants Area",
+    "description": "Cyclo scams and petty theft near museum entrance.",
+    "category": "Robbery",
+    "latitude": 10.7795,
+    "longitude": 106.6922,
+    "severity": 2
+  },
+  {
+    "title": "Saigon Post Office",
+    "description": "Pickpocketing inside crowded historic hall.",
+    "category": "Robbery",
+    "latitude": 10.7798,
+    "longitude": 106.6997,
+    "severity": 2
+  },
+  {
+    "title": "Opera House Area",
+    "description": "Taxi overcharging and aggressive solicitation at night.",
+    "category": "Robbery",
+    "latitude": 10.7766,
+    "longitude": 106.7032,
+    "severity": 2
+  },
+  {
+    "title": "Tao Dan Park Night",
+    "description": "Isolation risk, theft/assault if walking alone late.",
+    "category": "Robbery",
+    "latitude": 10.7744,
+    "longitude": 106.6908,
+    "severity": 3
+  },
+  {
+    "title": "District 4 Riverside",
+    "description": "Snatch theft risk on lonely roads connecting to D1.",
+    "category": "Robbery",
+    "latitude": 10.7573,
+    "longitude": 106.6597,
+    "severity": 3
+  },
+  {
+    "title": "September 23 Park",
+    "description": "Petty theft and solicitation/drug dealing at night.",
+    "category": "Robbery",
+    "latitude": 10.769,
+    "longitude": 106.693,
+    "severity": 3
+  },
+  {
+    "title": "Huynh Tan Phat Fld",
+    "description": "Severe tidal flooding, impassable for bikes/cars.",
+    "category": "Disaster",
+    "latitude": 10.7431,
+    "longitude": 106.7329,
+    "severity": 5
+  },
+  {
+    "title": "Tran Xuan Soan",
+    "description": "River overflows banks, deep water obscuring road edge.",
+    "category": "Disaster",
+    "latitude": 10.7512,
+    "longitude": 106.7099,
+    "severity": 5
+  },
+  {
+    "title": "Le Van Luong Fld",
+    "description": "Frequent deep flooding during high tides cutting access.",
+    "category": "Disaster",
+    "latitude": 10.73,
+    "longitude": 106.7,
+    "severity": 4
+  },
+  {
+    "title": "Thao Dien Flood",
+    "description": "Luxury area streets submerged by tide/rain mix.",
+    "category": "Disaster",
+    "latitude": 10.8037,
+    "longitude": 106.7335,
+    "severity": 4
+  },
+  {
+    "title": "Thu Duc Market",
+    "description": "Flash floods from rain, drain failure creates deep pools.",
+    "category": "Disaster",
+    "latitude": 10.85,
+    "longitude": 106.75,
+    "severity": 4
+  },
+  {
+    "title": "Nguyen Huu Canh",
+    "description": "Historic flood spot, pumps often overwhelmed by storms.",
+    "category": "Disaster",
+    "latitude": 10.7933,
+    "longitude": 106.717,
+    "severity": 3
+  },
+  {
+    "title": "Nguyen Van Qua",
+    "description": "Heavy rain causes deep street flooding in D12.",
+    "category": "Disaster",
+    "latitude": 10.84,
+    "longitude": 106.62,
+    "severity": 4
+  },
+  {
+    "title": "Kinh Duong Vuong",
+    "description": "Western bus station area flooding affects regional travel.",
+    "category": "Disaster",
+    "latitude": 10.745,
+    "longitude": 106.63,
+    "severity": 3
+  },
+  {
+    "title": "High Tide Warning",
+    "description": "Citywide tidal peak, riverbanks overflow low areas.",
+    "category": "Disaster",
+    "latitude": 10.7626,
+    "longitude": 106.6602,
+    "severity": 3
+  },
+  {
+    "title": "Typhoon Rain Risk",
+    "description": "Seasonal downpours cause flash floods citywide.",
+    "category": "Disaster",
+    "latitude": 10.8231,
+    "longitude": 106.6297,
+    "severity": 3
+  },
+  {
+    "title": "Ring Road 2 Const",
+    "description": "Road closure/diversions for closing the beltway gap.",
+    "category": "Construction",
+    "latitude": 10.845,
+    "longitude": 106.74,
+    "severity": 4
+  },
+  {
+    "title": "Metro Ben Thanh",
+    "description": "Barrier fencing, pedestrian diversions, messy surface.",
+    "category": "Construction",
+    "latitude": 10.772,
+    "longitude": 106.6985,
+    "severity": 3
+  },
+  {
+    "title": "Nguyen Khoai Brg",
+    "description": "Bridge construction starts late 2025; localized jams.",
+    "category": "Construction",
+    "latitude": 10.75,
+    "longitude": 106.68,
+    "severity": 3
+  },
+  {
+    "title": "Tran Quoc Hoan Rd",
+    "description": "New airport road construction zone; narrowed lanes.",
+    "category": "Construction",
+    "latitude": 10.805,
+    "longitude": 106.66,
+    "severity": 4
+  },
+  {
+    "title": "Ring Road 3 Site",
+    "description": "Major earthworks on city outskirts; dust and trucks.",
+    "category": "Construction",
+    "latitude": 10.86,
+    "longitude": 106.78,
+    "severity": 3
+  },
+  {
+    "title": "Thu Thiem Const",
+    "description": "Ongoing urban development, road changes, closures.",
+    "category": "Construction",
+    "latitude": 10.77,
+    "longitude": 106.72,
+    "severity": 2
+  },
+  {
+    "title": "Tet Flower Street",
+    "description": "Nguyen Hue closed for pedestrians; massive crowds.",
+    "category": "Festivals",
+    "latitude": 10.7739,
+    "longitude": 106.7036,
+    "severity": 2
+  },
+  {
+    "title": "April 30 Parade",
+    "description": "Major road closures in District 1 for national holiday.",
+    "category": "Festivals",
+    "latitude": 10.779,
+    "longitude": 106.697,
+    "severity": 3
+  },
+  {
+    "title": "NYE Countdown",
+    "description": "Gridlock and potential crowd crush at Nguyen Hue.",
+    "category": "Festivals",
+    "latitude": 10.7739,
+    "longitude": 106.7036,
+    "severity": 3
+  },
+  {
+    "title": "Marathon Closure",
+    "description": "Weekend street bans for city marathon (Le Duan).",
+    "category": "Festivals",
+    "latitude": 10.785,
+    "longitude": 106.7,
+    "severity": 3
+  },
+  {
+    "title": "Fireworks Tunnel",
+    "description": "Thu Thiem Tunnel closed for fireworks display.",
+    "category": "Festivals",
+    "latitude": 10.7626,
+    "longitude": 106.705,
+    "severity": 3
+  },
+  {
+    "title": "Hung King Fest",
+    "description": "Holiday traffic exodus at gateways (Suoi Tien).",
+    "category": "Festivals",
+    "latitude": 10.8443,
+    "longitude": 106.6186,
+    "severity": 3
+  },
+  {
+    "title": "Christmas D1",
+    "description": "Traffic gridlock near Notre Dame/Diamond Plaza.",
+    "category": "Festivals",
+    "latitude": 10.7798,
+    "longitude": 106.699,
+    "severity": 2
+  },
+  {
+    "title": "Pho Festival",
+    "description": "Culinary event, localized crowds in parks.",
+    "category": "Festivals",
+    "latitude": 10.775,
+    "longitude": 106.7,
+    "severity": 1
+  },
+  {
+    "title": "River Festival",
+    "description": "Events along Bach Dang Wharf; waterside crowds.",
+    "category": "Festivals",
+    "latitude": 10.7725,
+    "longitude": 106.7067,
+    "severity": 2
+  },
+  {
+    "title": "Lantern Fest",
+    "description": "Cho Lon (D5) crowds for Mid-Autumn Festival.",
+    "category": "Festivals",
+    "latitude": 10.75,
+    "longitude": 106.66,
+    "severity": 2
+  }
+]
