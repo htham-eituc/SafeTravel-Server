@@ -26,7 +26,14 @@ def create_database_if_not_exists():
     finally:
         temp_engine.dispose() # Dispose the temporary engine connection
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL,
+    pool_size=15,        # Tăng nhẹ lên 15 vì bạn chỉ có 4 workers
+    max_overflow=10,     # Cho phép bung ra thêm 10 kết nối khi cao điểm
+    pool_timeout=30,
+    pool_pre_ping=True,  # Giúp tự động kết nối lại nếu DB bị ngắt giữa chừng
+    pool_recycle=1800    # Quan trọng: Đóng các kết nối cũ sau 30 phút
+)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
