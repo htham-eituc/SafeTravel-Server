@@ -2,16 +2,34 @@
 
 Backend API for the SafeTravel application, built with **FastAPI + SQLAlchemy + MySQL**.
 
-- Base URL (local): `http://127.0.0.1:8000`
-- Swagger UI: `http://127.0.0.1:8000/docs`
-- ReDoc: `http://127.0.0.1:8000/redoc`
-- All API routes are prefixed with `/api` (see `run.py`)
+## 🌐 Access URLs
+
+### Local Development (không Docker)
+| Service | URL |
+|---------|-----|
+| API Base URL | `http://localhost:8000` |
+| Swagger UI | `http://localhost:8000/docs` |
+| ReDoc | `http://localhost:8000/redoc` |
+
+### Docker Deployment
+| Service | URL | Mô tả |
+|---------|-----|-------|
+| API Base URL | `http://localhost:8001` | API chính |
+| Swagger UI | `http://localhost:8001/docs` | Chỉ có ở mode development |
+| MySQL | `localhost:3307` | Database (port 3307 để tránh conflict) |
+
+> **Note:** Tất cả API routes đều có prefix `/api`. Ví dụ: `http://localhost:8001/api/login`
 
 ## Table of Contents
 
 - [Overview](#overview)
 - [Tech Stack](#tech-stack)
 - [Local Development](#local-development)
+- [Docker Deployment](#docker-deployment)
+  - [Quick Start với Docker](#quick-start-với-docker)
+  - [Development với Docker](#development-với-docker)
+  - [Production Deployment](#production-deployment)
+  - [Docker Commands](#docker-commands)
 - [Environment Variables](#environment-variables)
 - [Authentication (JWT Bearer)](#authentication-jwt-bearer)
 - [API (Request/Response Examples)](#api-requestresponse-examples)
@@ -69,6 +87,244 @@ When `ENVIRONMENT=development`, the app will attempt to:
 
 - create the database (if the MySQL user has `CREATE DATABASE` permission)
 - create tables from SQLAlchemy models on startup
+
+## Docker Deployment
+
+Dự án hỗ trợ deploy bằng Docker với 2 chế độ: **Development** và **Production**.
+
+### Prerequisites
+
+- [Docker](https://docs.docker.com/get-docker/) (version 20.10+)
+- [Docker Compose](https://docs.docker.com/compose/install/) (version 2.0+)
+
+### Quick Start với Docker
+
+1. **Clone repository và tạo file .env:**
+
+```bash
+git clone https://github.com/htham-eituc/SafeTravel-Server.git
+cd SafeTravel-Server
+
+# Copy file environment mẫu
+cp .env.example .env
+```
+
+2. **Cập nhật các biến trong .env:**
+
+```env
+# MySQL Configuration
+MYSQL_ROOT_PASSWORD=your_strong_root_password
+MYSQL_DATABASE=safetravel
+MYSQL_USER=safetravel_user
+MYSQL_PASSWORD=your_strong_password
+
+# Security - THAY ĐỔI TRONG PRODUCTION!
+SECRET_KEY=your_super_secret_key_at_least_32_characters
+
+# API Keys (bắt buộc)
+GEMINI_API_KEY=your_gemini_api_key
+GEOAPIFY_KEY=your_geoapify_api_key
+
+# Environment
+ENVIRONMENT=production
+```
+
+3. **Build và chạy containers:**
+
+```bash
+# Build và start tất cả services
+docker-compose up -d --build
+
+# Xem logs
+docker-compose logs -f
+```
+
+4. **Truy cập API:**
+
+| Service | URL |
+|---------|-----|
+| API Base URL | `http://localhost:8001` |
+| Swagger UI | `http://localhost:8001/docs` (chỉ development mode) |
+| MySQL | `localhost:3307` |
+
+**Test API hoạt động:**
+```bash
+# Kiểm tra health
+curl http://localhost:8001/
+
+# Response:
+# {"message":"Welcome to SafeTravel API!","status":"online","environment":"production"}
+```
+
+### Development với Docker
+
+Sử dụng `docker-compose.dev.yml` để có **hot reload** khi code thay đổi:
+
+```bash
+# Start development environment
+docker-compose -f docker-compose.dev.yml up -d --build
+
+# Xem logs realtime
+docker-compose -f docker-compose.dev.yml logs -f api
+
+# Stop containers
+docker-compose -f docker-compose.dev.yml down
+```
+
+**Tính năng Development mode:**
+- ✅ Hot reload khi thay đổi code
+- ✅ Debug logs
+- ✅ Swagger UI enabled
+- ✅ Source code được mount vào container
+
+### Production Deployment
+
+#### 1. Chuẩn bị server
+
+```bash
+# Cài đặt Docker và Docker Compose
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+sudo usermod -aG docker $USER
+
+# Install Docker Compose
+sudo apt-get update
+sudo apt-get install docker-compose-plugin
+```
+
+#### 2. Clone và cấu hình
+
+```bash
+git clone https://github.com/htham-eituc/SafeTravel-Server.git
+cd SafeTravel-Server
+
+# Tạo .env với các giá trị production
+cp .env.example .env
+nano .env  # Chỉnh sửa các giá trị
+```
+
+**Lưu ý cấu hình Production:**
+
+```env
+# Bắt buộc đổi trong production
+SECRET_KEY=generate_a_long_random_string_here
+MYSQL_ROOT_PASSWORD=strong_root_password
+MYSQL_PASSWORD=strong_user_password
+
+# Set môi trường
+ENVIRONMENT=production
+
+# Optional: đổi port
+API_PORT=8000
+```
+
+#### 3. Deploy
+
+```bash
+# Build và start (detached mode)
+docker-compose up -d --build
+
+# Kiểm tra status
+docker-compose ps
+
+# Xem logs
+docker-compose logs -f
+```
+
+#### 4. Cấu hình Reverse Proxy (Nginx)
+
+Tạo file `/etc/nginx/sites-available/safetravel`:
+
+```nginx
+server {
+    listen 80;
+    server_name your-domain.com;
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+```
+
+```bash
+# Enable site
+sudo ln -s /etc/nginx/sites-available/safetravel /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl reload nginx
+
+# (Optional) Cài SSL với Certbot
+sudo apt install certbot python3-certbot-nginx
+sudo certbot --nginx -d your-domain.com
+```
+
+### Docker Commands
+
+| Lệnh | Mô tả |
+|------|-------|
+| `docker-compose up -d --build` | Build và start containers |
+| `docker-compose down` | Stop và remove containers |
+| `docker-compose down -v` | Stop, remove containers và volumes (⚠️ xóa data) |
+| `docker-compose logs -f` | Xem logs realtime |
+| `docker-compose logs -f api` | Xem logs của service api |
+| `docker-compose ps` | Liệt kê containers đang chạy |
+| `docker-compose exec api bash` | Truy cập shell trong container api |
+| `docker-compose exec db mysql -u root -p` | Truy cập MySQL CLI |
+| `docker-compose restart api` | Restart service api |
+| `docker-compose pull` | Pull images mới nhất |
+
+### Cấu trúc Docker Files
+
+```
+SafeTravel-Server/
+├── Dockerfile              # Production Dockerfile
+├── Dockerfile.dev          # Development Dockerfile (with hot reload)
+├── docker-compose.yml      # Production compose
+├── docker-compose.dev.yml  # Development compose
+├── .dockerignore           # Files to exclude from Docker build
+├── .env.example            # Environment variables template
+└── init.sql                # MySQL initialization script
+```
+
+### Troubleshooting Docker
+
+**1. Container không start được:**
+```bash
+# Xem logs chi tiết
+docker-compose logs api
+
+# Kiểm tra health của MySQL
+docker-compose exec db mysqladmin ping -h localhost -u root -p
+```
+
+**2. Lỗi kết nối database:**
+```bash
+# Đảm bảo MySQL đã sẵn sàng
+docker-compose logs db
+
+# Test connection từ container api
+docker-compose exec api python -c "from src.infrastructure.database.sql.database import engine; print(engine.connect())"
+```
+
+**3. Reset database:**
+```bash
+# Xóa volume và restart
+docker-compose down -v
+docker-compose up -d --build
+```
+
+**4. Rebuild sau khi thay đổi requirements.txt:**
+```bash
+docker-compose build --no-cache api
+docker-compose up -d
+```
 
 ## Environment Variables
 

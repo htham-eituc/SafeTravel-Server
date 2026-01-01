@@ -1,0 +1,71 @@
+# ==========================================
+# SafeTravel-Server Docker Compose - Development
+# ==========================================
+# Sử dụng: docker-compose -f docker-compose.dev.yml up --build
+
+version: '3.8'
+
+services:
+  # ==========================================
+  # MySQL Database (Development)
+  # ==========================================
+  db:
+    image: mysql:8.0
+    container_name: safetravel-db-dev
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-safetravel}
+      MYSQL_USER: ${MYSQL_USER:-safetravel_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-safetravel_pass}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data_dev:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - safetravel-network-dev
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-rootpassword}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ==========================================
+  # SafeTravel API Server (Development with hot reload)
+  # ==========================================
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: safetravel-api-dev
+    restart: unless-stopped
+    ports:
+      - "${API_PORT:-8000}:8000"
+    environment:
+      - DATABASE_URL=mysql+mysqlconnector://${MYSQL_USER:-safetravel_user}:${MYSQL_PASSWORD:-safetravel_pass}@db:3306/${MYSQL_DATABASE:-safetravel}
+      - SECRET_KEY=${SECRET_KEY:-dev_secret_key_change_in_production}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GEOAPIFY_KEY=${GEOAPIFY_KEY}
+      - ENVIRONMENT=development
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-2.5-flash}
+      - LOG_LEVEL=${LOG_LEVEL:-DEBUG}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - safetravel-network-dev
+    volumes:
+      # Mount source code for hot reload
+      - .:/app
+      - /app/__pycache__
+      - /app/src/__pycache__
+
+networks:
+  safetravel-network-dev:
+    driver: bridge
+
+volumes:
+  mysql_data_dev:
+    driver: local
